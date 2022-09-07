@@ -2,6 +2,7 @@
 <?xaml-comp compile="true" ?>
 <ResourceDictionary 
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+<<<<<<<< HEAD:src/HashFormNew/Resources/ColorsOriginal.xaml
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:IG.App"
     >
@@ -10,6 +11,44 @@
     -->
     
     <!--
+========
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="ColorsOriginal.xaml" />
+    </ResourceDictionary.MergedDictionaries>
+
+
+    <!-- Background and Foreground colors for Button and similar controls:
+      BackgroundColor also used as Color in Switches and TextColor dfor RadioButtons
+      TextColor also used for
+      BackgroundColor: Primary / #512BD4  TextColor: White / White -->
+    <Color x:Key="Button_BackgroundColor_LightTheme">Blue</Color>
+    <Color x:Key="Button_TextColor_LightTheme">White</Color>
+    
+    <Color x:Key="Input_BackgroundColor_LightTheme">White</Color>
+    <Color x:Key="Input_TextColor_LightTheme">Brown</Color>
+    
+
+    <!-- BorderColor for radiobuttons and other controls that normally have border around them
+    -->
+    <Color x:Key="Control_BorderColor_LightTheme">Gray</Color>
+    <x:Int32 x:Key="Control_BorderWidth">1</x:Int32>
+    
+    <!-- Page background and other properties:
+    -->
+    <Color x:Key="Page_BackgroundColor_LightTheme">Lavender</Color>
+    
+    <!-- Page background and other properties:
+    -->
+    <Color x:Key="Layout_BackgroundColor_LightTheme">PapayaWhip</Color>
+    <Color x:Key="Layout_BorderColor_LightTheme">Transparent</Color>
+    <x:Int32 x:Key="Layout_BorderWidth">1</x:Int32>
+    
+    
+    <!-- From ColorsOriginal.xaml:
+    
+>>>>>>>> cbd357a90feaff88f3c85d5fa81be55a78e9e613:src/HashFormNew/Resources/Colors.xaml
     <Color x:Key="Primary">#512BD4</Color>
     <Color x:Key="Light">#DFD8F7</Color>
     <Color x:Key="Dark">#2B0B98</Color>
@@ -36,6 +75,13 @@
     <Color x:Key="Blue100Accent">#3E8EED</Color>
     <Color x:Key="Blue200Accent">#72ACF1</Color>
     <Color x:Key="Blue300Accent">#A7CBF6</Color>
+<<<<<<<< HEAD:src/HashFormNew/Resources/ColorsOriginal.xaml
     -->
+========
+    
+    (from ColorsOriginal.xaml) -->
+    
+    
+>>>>>>>> cbd357a90feaff88f3c85d5fa81be55a78e9e613:src/HashFormNew/Resources/Colors.xaml
 
 </ResourceDictionary>
