@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<?xaml-comp compile="true" ?>
+<ResourceDictionary 
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:IG.App"
+    >
+
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="ColorsOriginal.xaml" />
+    </ResourceDictionary.MergedDictionaries>
+
+
+    <!-- Background and Foreground colors for Button and similar controls:
+      BackgroundColor also used as Color in Switches and TextColor dfor RadioButtons
+      TextColor also used for
+      BackgroundColor: Primary / #512BD4  TextColor: White / White -->
+    <Color x:Key="Button_BackgroundColor_LightTheme">DarkCyan</Color>
+    <Color x:Key="Button_TextColor_LightTheme">Yellow</Color>
+    
+    <!-- Style resources from Entry, Editor, and other input controls: -->
+    <Color x:Key="Input_BackgroundColor_LightTheme">White</Color>
+    <Color x:Key="Input_TextColor_LightTheme">Black</Color>
+    <!-- Input controls that may contain results of some operation (often readonly): -->
+    <Color x:Key="InputResult_BackgroundColor_LightTheme">White</Color>
+    <Color x:Key="InputResult_TextColor_LightTheme">Brown</Color>
+    <!-- When control becomes readonly: -->
+    <Color x:Key="InputResultReadOnly_BackgroundColor_LightTheme">PapayaWhip</Color>
+    <Color x:Key="InputResultReadOnly_TextColor_LightTheme">Brown</Color>
+    
+
+    <!-- Border Color for radiobuttons, entries, and other controls styled with border around them:
+    -->
+    <Color x:Key="ControlBorder_BorderColor_LightTheme">Gray</Color>
+    <Color x:Key="ControlBorder_BackgroundColor">Transparent</Color>
+    <x:Int32 x:Key="ControlBorder_BorderThickness">1</x:Int32>
+    <x:Int32 x:Key="ControlBorder_Padding">2</x:Int32>
+    <x:Int32 x:Key="ControlBorder_Margin">1</x:Int32>
+    
+    <!-- Page background and other properties:
+    -->
+    <Color x:Key="Page_BackgroundColor_LightTheme">Lavender</Color>
+    
+    <!-- Layout background, padding, border, and other properties:
+    -->
+    <Color x:Key="Layout_BackgroundColor_LightTheme">Transparent</Color>
+    <Color x:Key="Layout_BorderColor_LightTheme">Transparent</Color>
+    <x:Int32 x:Key="Layout_BorderWidth">1</x:Int32>
+    <x:Int32 x:Key="Layout_Padding">2</x:Int32>
+    <x:Int32 x:Key="Layout_Margin">1</x:Int32>
+    <x:Int32 x:Key="Layout_Spacing">4</x:Int32>
+    
+    
+    <!-- Definitions that were preeviously in ColorsOriginal.xaml:
+    -->
+    
+    <Color x:Key="Primary">#512BD4</Color>
+    <Color x:Key="Light">#DFD8F7</Color>
+    <Color x:Key="Dark">#2B0B98</Color>
+    <Color x:Key="White">White</Color>
+    <Color x:Key="Black">Black</Color>
+    <Color x:Key="LightGray">#E5E5E1</Color>
+    <Color x:Key="MidGray">#969696</Color>
+    <Color x:Key="DarkGray">#505050</Color>
+    <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource Primary}"/>
+    <SolidColorBrush x:Key="LightBrush" Color="{StaticResource Light}"/>
+    <SolidColorBrush x:Key="DarkBrush" Color="{StaticResource Dark}"/>
+    <SolidColorBrush x:Key="WhiteBrush" Color="{StaticResource White}"/>
+    <SolidColorBrush x:Key="BlackBrush" Color="{StaticResource Black}"/>
+    <SolidColorBrush x:Key="LightGrayBrush" Color="{StaticResource LightGray}"/>
+    <SolidColorBrush x:Key="MidGrayBrush" Color="{StaticResource MidGray}"/>
+    <SolidColorBrush x:Key="DarkGrayBrush" Color="{StaticResource DarkGray}"/>
+
+    <Color x:Key="Yellow100Accent">#F7B548</Color>
+    <Color x:Key="Yellow200Accent">#FFD590</Color>
+    <Color x:Key="Yellow300Accent">#FFE5B9</Color>
+    <Color x:Key="Cyan100Accent">#28C2D1</Color>
+    <Color x:Key="Cyan200Accent">#7BDDEF</Color>
+    <Color x:Key="Cyan300Accent">#C3F2F4</Color>
+    <Color x:Key="Blue100Accent">#3E8EED</Color>
+    <Color x:Key="Blue200Accent">#72ACF1</Color>
+    <Color x:Key="Blue300Accent">#A7CBF6</Color>
+    
+    
+
+</ResourceDictionary>

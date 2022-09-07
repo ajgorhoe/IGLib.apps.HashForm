@@ -7,11 +7,36 @@
              >
     
     <Application.Resources>
+        
+        <!-- Colors already included in Styles. - not true? Why? (namespace mismatch? how to verify?)
+        -->
+        
         <ResourceDictionary>
+            
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Resources/Colors.xaml" />
+                <ResourceDictionary Source="Resources/StyleResources.xaml" />
+                <!--
+                <ResourceDictionary Source="Resources/ColorsOriginal.xaml" />
+                -->
+                <ResourceDictionary Source="Resources/StylesOriginal.xaml" />
+                <!--
+                WARNING: Merge does not work for classes derived from ResourceDictionary!
+                So, code below does not work. I needed to remove the attribute x:Class="IG.App.Styles"
+                from outer <ResourceDictionary /> in Resources/Styles.xaml, and replace here the merged
+                dictionary by class with the merged dictionary by file path! 
+                See also: 
+                  * https://github.com/dotnet/maui/issues/4398 
+                  * https://docs.microsoft.com/en-us/dotnet/maui/fundamentals/resource-dictionaries#merge-resource-dictionaries
+                If merged by class name, the code builds but styles are not appllied. Also, inclusion 
+                by file path does not work when class attribute is defined in the ResourceDictionary of
+                the file.
+                
+                <local:Styles />
+                -->
                 <ResourceDictionary Source="Resources/Styles.xaml" />
             </ResourceDictionary.MergedDictionaries>
+
         </ResourceDictionary>
+        
     </Application.Resources>
 </Application>

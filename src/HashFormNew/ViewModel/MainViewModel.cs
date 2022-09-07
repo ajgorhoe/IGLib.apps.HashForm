@@ -504,7 +504,7 @@ public partial class MainViewModel :
             if (saved)
             {
                 ServiceProvider?.GetService<IG.App.IAlertService>()?.ShowAlert(
-                    "Fila Hashes Saved",
+                    "File Hashes Saved",
                     "Calculated file hashes were saved to the fillowing file: " + Environment.NewLine + Environment.NewLine
                     + hashFilePath + Environment.NewLine);
             }

@@ -4,447 +4,430 @@
              x:Class="IG.App.MainPage"
              xmlns:viewmodel="clr-namespace:IG.App.ViewModel"
              x:DataType="viewmodel:MainViewModel"
-             BackgroundColor="AliceBlue"
              
              MinimumWidthRequest="400" MinimumHeightRequest="600"
              
+             BackgroundColor="{StaticResource Page_BackgroundColor_LightTheme}"
              >
 
-    <!--
-    
-             MinimumWidthRequest="800" MinimumHeightRequest="600"
-             WidthRequest="800" HeightRequest="700"  
-    
-    -->
+
+    <ScrollView>
+
+        <Frame 
+            x:Name="OuterFrame"
+            HorizontalOptions="Fill"
+            VerticalOptions="Fill"
+            StyleClass="FrameDebugStyle1"
+            >
 
 
+            <Frame
+                HorizontalOptions="Fill"
+                VerticalOptions="Fill"
+                StyleClass="FrameDebugStyle2"
+                >
 
-    <StackLayout x:Name="OuterLayout"  
-                 HorizontalOptions="Fill" 
-                 VerticalOptions="Fill"  
-                 Margin="10"
-                 Padding="50"
-                 Background="AliceBlue"
-                 AnchorY="5"
-                 >
+                <Grid 
+                    RowDefinitions="Auto, Auto,  * "
+                    ColumnDefinitions="*"
+                    HorizontalOptions="Fill"
+                    VerticalOptions="Fill"
+                    StyleClass="LayoutDebugStyle3"
+                    >
 
+                    <Frame
+                        HorizontalOptions="Fill" 
+                        VerticalOptions="Fill"
+                        StyleClass="FrameDebugStyle4"
+                        >
 
-        <!--
-        
-        <Label x:Name="OuterLayoutLabel"  Text="Outer layout" ZIndex="2"
-               HorizontalOptions="Fill" VerticalOptions="Fill" />
-        
-        <Border x:Name="ContentBorder" 
-                HorizontalOptions="Fill" 
-                VerticalOptions="Start" 
-                Stroke="Green"
-                BackgroundColor="Orange"
-                StrokeThickness="2"
-                StrokeShape="RoundRectangle 5,5,5,5"
-                Padding="10, 5, 10, 5"  ZIndex="4" >
-        </Border>
-        
-        -->
+                        <VerticalStackLayout Grid.Row="0" Grid.Column="0"
+                        x:Name="OuterLayout"  
+                        HorizontalOptions="Fill" 
+                        VerticalOptions="Start"
+                        >
 
-        <VerticalStackLayout x:Name="TopContentLayout" 
-                                 HorizontalOptions="Fill"
-                                 VerticalOptions="Fill"
-                                 Spacing="4" 
-                                 Margin="0"
-                                 >
+                            <Grid 
+                            x:Name="TopControlsContainer"
+                            Margin="0" 
+                            HorizontalOptions="Fill"
+                            VerticalOptions="Fill"
+                            >
 
-            <Grid  x:Name="TitleContainer" 
-                       IsVisible="False"
-                       HorizontalOptions="Fill" 
-                       Margin="0"
-                       >
-
-                <Label x:Name="MainTitle"
-                       Grid.Row="0" Grid.Column="0" Text="Hash Calculation" 
-                       TextColor="Blue"  
-                       HorizontalOptions="Start"  HorizontalTextAlignment="Start"
-                       VerticalOptions="Start"
-                       ZIndex="1"  />
-
-                <HorizontalStackLayout x:Name="DebugSwitch"
-                        Spacing="4" HorizontalOptions="End">
-
-                    <CheckBox x:Name="DebugCheckBox1" IsChecked="{Binding IsDebugInfoVisible}" IsVisible="{Binding IsDebugMode}"
-                            HorizontalOptions="End" 
-                            Margin="4, 0, 8, 0" />
-                    <Label x:Name="DebugSwitchLabel1" IsVisible="{Binding IsDebugMode}"
-                            Text="Debug Info" TextColor="Black"
-                            HorizontalOptions="End" VerticalOptions="Center" />
-
-                </HorizontalStackLayout>
-
-            </Grid>
-
-
-            <Grid x:Name="TopControlsContainer"
-                      Margin="0" HorizontalOptions="Fill"
-                      >
-                <HorizontalStackLayout 
+                                <HorizontalStackLayout 
                         x:Name="FileSwitchContainer"
                         HorizontalOptions="Start" Spacing="0" >
-                    <RadioButton x:Name="FileSwitch" IsChecked="{Binding IsFileHashing}" Content="Files" HorizontalOptions="Start" />
-                    <RadioButton x:Name="TextSwitxh" IsChecked="{Binding IsTextHashing}" Content="Text"  HorizontalOptions="Start" />
-                </HorizontalStackLayout>
+                                    <RadioButton x:Name="FileSwitch" IsChecked="{Binding IsFileHashing}" Content="Files" HorizontalOptions="Start" />
+                                    <RadioButton x:Name="TextSwitxh" IsChecked="{Binding IsTextHashing}" Content="Text"  HorizontalOptions="Start" />
+                                </HorizontalStackLayout>
 
-                <HorizontalStackLayout HorizontalOptions="End" Spacing="4"  >
-
-                    <Label x:Name="DebugSwitchLabel"
-                            Text="Debug Info:" TextColor="Black"
+                                <HorizontalStackLayout HorizontalOptions="End" Spacing="4"  >
+                                    <Label x:Name="DebugSwitchLabel"
+                            Text="Debug Info:"
                             IsVisible="{Binding IsDebugMode}"
                             HorizontalOptions="End" VerticalOptions="Center" />
-                    <CheckBox x:Name="DebugCheckBox" IsChecked="{Binding IsDebugInfoVisible}"  
+                                    <CheckBox x:Name="DebugCheckBox" IsChecked="{Binding IsDebugInfoVisible}"  
                             BackgroundColor="Black" Color="Blue"
                             IsVisible="{Binding IsDebugMode}"    HorizontalOptions="End" 
                             Margin="4, 0, 8, 0" />
+                                    <Button 
+                            x:Name="ButtonForContext" Text="Help" 
+                            Command="{Binding HelpCommand}"
+                            HorizontalOptions="End" />
+                                    <Button Text="About"
+                             Command="{Binding AboutCommand}"
+                             HorizontalOptions="End" />
+                                </HorizontalStackLayout>
+                            </Grid>
+
+                            <Grid x:Name="FileSelectContainer"
+                            HorizontalOptions="Fill" RowDefinitions="*" ColumnDefinitions="Auto, *, Auto"
+                            ColumnSpacing="4" >
 
 
-                    <Button 
-                        x:Name="ButtonForContext" Text="Help" 
-                        Command="{Binding HelpCommand}"
-                        HorizontalOptions="End" />
-
-                    <!-- 
-                        Clicked="OnButtonHelpClicked"
-                        Command="{Binding HelpCommand}"
-                        Clicked="OnButtonAboutClicked"
-                        Command="{Binding AboutCommand}"
-                     -->
-
-                    <Button Text="About"
-                         Command="{Binding AboutCommand}"
-                         HorizontalOptions="End" />
-                </HorizontalStackLayout>
-            </Grid>
-
-
-
-            <Grid x:Name="FileSelectContainer"
-                    HorizontalOptions="Fill" RowDefinitions="*" ColumnDefinitions="Auto, *, Auto"
-                    ColumnSpacing="4" >
-
-
-                <Label 
+                                <Label 
                         x:Name="FileSelectLabel" 
                         Text="File: " Grid.Row="0" Grid.Column="0" HorizontalOptions="Center" 
                         VerticalOptions="Center"></Label>
-                <Entry 
+                                <Entry 
                         x:Name="FileSelectEntry" Placeholder="File Path"  Grid.Row="0" Grid.Column="1"
                         Text="{Binding FilePath}" IsEnabled="{Binding IsFileHashing}"
                         HorizontalOptions="Fill" VerticalOptions="Center"
                         >
-                    <Entry.GestureRecognizers>
-                        <DropGestureRecognizer
+                                    <Entry.GestureRecognizers>
+                                        <DropGestureRecognizer
                         
                             DragOver="OnDragOverFileEntry"
                             DragLeave="OnDragLeaveFileEntry"
                             Drop="OnDropFileEntry"
                         />
-                        <!--
+
+                                        <!--
                             DragOver="OnDragOverFileEntry"
                             DragLeave="OnDragLeaveFileEntry"
                             Drop="OnDropFileEntry"
                         -->
 
-                    </Entry.GestureRecognizers>
-                </Entry>
-                <Button
+                                    </Entry.GestureRecognizers>
+                                </Entry>
+                                <Button
                         x:Name="FileBrowseButton" 
                         Text="Browse" IsEnabled="{Binding IsFileHashing}" Clicked="OnButtonBrowseClicked" 
                         Grid.Row="0" Grid.Column="2" 
                         HorizontalOptions="End" VerticalOptions="Center"  Margin="10, 0, 0, 0"></Button>
-            </Grid>
+                            </Grid>
 
-            <HorizontalStackLayout x:Name="CalculateButtonsContainer" 
+                            <HorizontalStackLayout x:Name="CalculateButtonsContainer" 
                     Margin="0" HorizontalOptions="Fill">
 
-                <Button x:Name="CalculateButton" Text="Calculate Hash Values" 
+                                <Button x:Name="CalculateButton" Text="Calculate Hash Values" 
                                     Clicked="OnButtonCalculateClicked"
                                     HorizontalOptions="End" />
-                <Button x:Name="ClearButton" Text="Clear Hash Values" 
+                                <Button x:Name="ClearButton" Text="Clear Hash Values" 
                                     Clicked="OnButtonClearClicked"
                                     HorizontalOptions="End" />
-            </HorizontalStackLayout>
+                            </HorizontalStackLayout>
 
 
-            <HorizontalStackLayout x:Name="CalculateOptionsContainer" 
+                            <HorizontalStackLayout x:Name="CalculateOptionsContainer" 
                     Margin="0" HorizontalOptions="Fill">
-                <CheckBox 
+                                <CheckBox 
                         x:Name="RecalculateCheckBox" 
                         IsChecked="{Binding CalculateHashesAutomatically}" />
-                <Label  x:Name="RecalculateLabel" Text="Recalculate Automatically " VerticalOptions="Center" />
-                <CheckBox 
+                                <Label  x:Name="RecalculateLabel" Text="Recalculate Automatically " VerticalOptions="Center" />
+                                <CheckBox 
                         x:Name="SaveToFileCheckBox" 
                         IsChecked="{Binding IsSaveFileHashesToFile}" />
-                <Label  x:Name="SaveToFileLabel" Text="Save File Hashes to a File " VerticalOptions="Center" />
-                <CheckBox 
+                                <Label  x:Name="SaveToFileLabel" Text="Save File Hashes to a File " VerticalOptions="Center" />
+                                <CheckBox 
                         x:Name="UpperCaseCheckBox" 
                         IsChecked="{Binding IsUpperCaseHashes}" />
-                <Label  x:Name="UpperCaseLabel" Text="Upper Case Hashes " VerticalOptions="Center" />
-            </HorizontalStackLayout>
+                                <Label  x:Name="UpperCaseLabel" Text="Upper Case Hashes " VerticalOptions="Center" />
+                            </HorizontalStackLayout>
 
-            <Border x:Name="DebugInfoBorder"
-                    IsVisible="{Binding IsDebugInfoVisible}" HorizontalOptions="Fill"
+                            <Border x:Name="DebugInfoBorder"
+                    IsVisible="{Binding IsDebugInfoVisible}" 
+                    HorizontalOptions="Fill"
                     Stroke="LightBlue"
-                    StrokeThickness="1"
+                    StrokeThickness="2"
                     StrokeShape="RoundRectangle 5,5,5,5"
-                    Background="White"
-                    Padding="10, 5, 10, 5"  ZIndex="4" >
-                <VerticalStackLayout 
-                        x:Name="DebugInfoContainer"
-                        HorizontalOptions="Fill">
-                    <Label Text="Debug info: " HorizontalOptions="Start" TextDecorations="Underline" />
-                    <HorizontalStackLayout 
+                    Background="Transparent"
+                    Padding="10, 5, 10, 5" 
+                    >
+
+                                <VerticalStackLayout 
+                    x:Name="DebugInfoContainer"
+                    HorizontalOptions="Fill">
+                                    <Label Text="Debug info: " HorizontalOptions="Start" TextDecorations="Underline" />
+                                    <HorizontalStackLayout 
                             x:Name="HashValuesInfoContainer"
                             Spacing="4" HorizontalOptions="Fill" >
-                        <Label Text="MD5: " HorizontalOptions="Start" VerticalOptions="Center"></Label>
-                        <Label Text="{Binding HashValueMD5}" HorizontalOptions="Start" VerticalOptions="Center"></Label>
-                        <Label Text="SHA1: " HorizontalOptions="Start" VerticalOptions="Center"></Label>
-                        <Label Text="{Binding HashValueSHA1}" HorizontalOptions="Start" VerticalOptions="Center"></Label>
-                    </HorizontalStackLayout>
-                    <HorizontalStackLayout 
+                                        <Label Text="MD5: " HorizontalOptions="Start" VerticalOptions="Center"></Label>
+                                        <Label Text="{Binding HashValueMD5}" HorizontalOptions="Start" VerticalOptions="Center"></Label>
+                                        <Label Text="SHA1: " HorizontalOptions="Start" VerticalOptions="Center"></Label>
+                                        <Label Text="{Binding HashValueSHA1}" HorizontalOptions="Start" VerticalOptions="Center"></Label>
+                                    </HorizontalStackLayout>
+                                    <HorizontalStackLayout 
                             x:Name="DragDropInfoContainer"
                             Spacing="4" HorizontalOptions="Fill" >
-                        <Label Text="Entry counter: " HorizontalOptions="Start" ></Label>
-                        <Label Text="{Binding NumEntries}"  HorizontalOptions="Start"/>
-                        <Label Text="Dropped value: " HorizontalOptions="Start" ></Label>
-                        <Label Text="{Binding DroppedTextValue}"  HorizontalOptions="Start"/>
-                    </HorizontalStackLayout>
-                    <HorizontalStackLayout 
+                                        <Label Text="Entry counter: " HorizontalOptions="Start" ></Label>
+                                        <Label Text="{Binding NumEntries}"  HorizontalOptions="Start"/>
+                                        <Label Text="Dropped value: " HorizontalOptions="Start" ></Label>
+                                        <Label Text="{Binding DroppedTextValue}"  HorizontalOptions="Start"/>
+                                    </HorizontalStackLayout>
+                                    <HorizontalStackLayout 
                             x:Name="DirectoryInfoContainer"
                             Spacing="4" HorizontalOptions="Fill" >
-                        <Label Text="Directory: " HorizontalOptions="Start" ></Label>
-                        <Label Text="{Binding DirectoryPath}"  HorizontalOptions="Start"/>
-                    </HorizontalStackLayout>
-                    <HorizontalStackLayout 
+                                        <Label Text="Directory: " HorizontalOptions="Start" ></Label>
+                                        <Label Text="{Binding DirectoryPath}"  HorizontalOptions="Start"/>
+                                    </HorizontalStackLayout>
+                                    <HorizontalStackLayout 
                             x:Name="FileOrTextHashingInfoContainer"
                             Spacing="8">
-                        <Label Text="File hashing: "/>
-                        <Label Text="{Binding IsFileHashing}" />
-                        <Label Text="Text hashing: "/>
-                        <Label Text="{Binding IsTextHashing}" />
-                    </HorizontalStackLayout>
-                    <HorizontalStackLayout 
+                                        <Label Text="File hashing: "/>
+                                        <Label Text="{Binding IsFileHashing}" />
+                                        <Label Text="Text hashing: "/>
+                                        <Label Text="{Binding IsTextHashing}" />
+                                    </HorizontalStackLayout>
+                                    <HorizontalStackLayout 
                             x:Name="CalculationStateInfoContainer"
                             Spacing="8">
-                        <Label Text="IsInputDataSufficient: "/>
-                        <Label Text="{Binding IsInputDataSufficient}" />
-                        <Label Text="IsHashesOutdated: "/>
-                        <Label Text="{Binding IsHashesOutdated}" />
-                        <Label Text="IsCalculationButtonsEnabled: "/>
-                        <Label Text="{Binding IsCalculationButtonsEnabled}" />
-                        <Label Text="IsCalculating: "/>
-                        <Label Text="{Binding IsCalculating} "/>
-                    </HorizontalStackLayout>
-                </VerticalStackLayout>
-            </Border>
+                                        <Label Text="IsInputDataSufficient: "/>
+                                        <Label Text="{Binding IsInputDataSufficient}" />
+                                        <Label Text="IsHashesOutdated: "/>
+                                        <Label Text="{Binding IsHashesOutdated}" />
+                                        <Label Text="IsCalculationButtonsEnabled: "/>
+                                        <Label Text="{Binding IsCalculationButtonsEnabled}" />
+                                        <Label Text="IsCalculating: "/>
+                                        <Label Text="{Binding IsCalculating} "/>
+                                    </HorizontalStackLayout>
+                                </VerticalStackLayout>
 
+                            </Border>
 
-            <!--
-                    Below, the first (bordered) Label would not refresh upon calculation of hashes, probably due to HorizontalOptions="Fill"
-                    - must be a bug in MAUI. Also calling this in button event handler does not help: (this.OuterLayout as IView).InvalidateArrange();
-                 <Border Stroke="Gray" Padding="4, 2, 4, 2">
-                    <Label Text="{Binding HashValueMD5}" HorizontalOptions="Fill" VerticalOptions="Center"></Label>
-                </Border>
-                <Label Text="{Binding HashValueMD5}"  HorizontalOptions="Fill" VerticalOptions="Center"></Label>
-                -->
-
-            <Grid 
+                            <Grid 
                     x:Name="HashValuesGrid"
-                      HorizontalOptions="Fill" RowDefinitions="1*, 1*, 1*, 1*" 
-                      ColumnDefinitions="Auto, Auto, *, Auto"
-                      RowSpacing="4" ColumnSpacing="4"
-                      >
+                    HorizontalOptions="Fill" 
+                    RowDefinitions="1*, 1*, 1*, 1*" 
+                    ColumnDefinitions="Auto, Auto, *, Auto"
+                    RowSpacing="4" ColumnSpacing="4"
+                    >
 
-                <Label 
-                        x:Name="Md5Label"
-                        Grid.Row="0" Grid.Column="0" Text="MD5: " HorizontalOptions="Start" VerticalOptions="Center" />
-                <CheckBox 
-                        x:Name="Md5Checkbox"
-                        Grid.Row="0" Grid.Column="1" 
+                                <Label  x:Name="Md5Label" Grid.Row="0" Grid.Column="0" 
+                        Text="MD5:" 
+                        HorizontalOptions="Start" VerticalOptions="Center" />
+                                <CheckBox  x:Name="Md5Checkbox" Grid.Row="0" Grid.Column="1" 
                         IsChecked="{Binding CalculateMD5}" 
                         HorizontalOptions="Start" VerticalOptions="End" />
-                <Border 
-                        x:Name ="Md5Border" Grid.Row="0" Grid.Column="2" 
-                        Stroke="Gray" Padding="4, 2, 4, 2">
-                    <Entry 
-                            x:Name="Md5ValueControl" Text="{Binding HashValueMD5}" IsReadOnly="True" 
-                            HorizontalOptions="Fill" VerticalOptions="Center" />
-                </Border>
-                <Button 
-                        x:Name="Md5CopyButton" Command="{Binding CopyHashToClipboardCommand}" CommandParameter="{Binding HashValueMD5}"
-                        Grid.Row="0" Grid.Column="3" Text="Copy MD5" HorizontalOptions="Fill" VerticalOptions="Fill" Padding="10, 0, 0, 0" />
+                                <Border 
+                                    x:Name ="Md5Border" Grid.Row="0" Grid.Column="2"
+                                    Style="{StaticResource ControlBorderStyle}"
+                                    >
+                                    <Entry 
+                                        x:Name="Md5ValueControl" Text="{Binding HashValueMD5}" IsReadOnly="True" 
+                                        HorizontalOptions="Fill" VerticalOptions="Center"
+                                        Style="{StaticResource EntryResultStyle}" />
+                                </Border>
+                                <Button 
+                                    x:Name="Md5CopyButton" Command="{Binding CopyHashToClipboardCommand}" CommandParameter="{Binding HashValueMD5}"
+                                    Grid.Row="0" Grid.Column="3" Text="Copy MD5" HorizontalOptions="Fill" VerticalOptions="Fill" 
+                                    Padding="10, 0, 0, 0" />
 
-                <Label 
-                        x:Name="Sha1Label" Grid.Row="1" Grid.Column="0" Text="SHA-1: " 
-                        HorizontalOptions="Start" VerticalOptions="Center" />
-                <CheckBox 
-                        x:Name="Sha1Checkbox" Grid.Row="1" Grid.Column="1" 
-                        IsChecked="{Binding CalculateSHA1}" HorizontalOptions="Start" VerticalOptions="End" />
-                <Border 
-                        x:Name="Sha1Border" Grid.Row="1" Grid.Column="2" 
-                        Stroke="Gray" Padding="4, 2, 4, 2" >
-                    <Entry 
-                            x:Name="Sha1ValueControl" Text="{Binding HashValueSHA1}"  IsReadOnly="True"
-                            HorizontalOptions="Fill" VerticalOptions="Center" />
-                </Border>
-                <Button 
-                    x:Name="Sha1CopyButton" Command="{Binding CopyHashToClipboardCommand}" CommandParameter="{Binding HashValueSHA1}"
-                    Grid.Row="1" Grid.Column="3" Text="Copy SHA-1" HorizontalOptions="Fill" VerticalOptions="Fill" Padding="10, 0, 0, 0" />
+                                <Label 
+                                    x:Name="Sha1Label" Grid.Row="1" Grid.Column="0" Text="SHA-1: " 
+                                    HorizontalOptions="Start" VerticalOptions="Center" />
+                                <CheckBox 
+                                    x:Name="Sha1Checkbox" Grid.Row="1" Grid.Column="1" 
+                                    IsChecked="{Binding CalculateSHA1}" HorizontalOptions="Start" VerticalOptions="End" />
+                                <Border 
+                                    x:Name="Sha1Border" Grid.Row="1" Grid.Column="2" 
+                                    Style="{StaticResource ControlBorderStyle}" 
+                                    >
+                                    <Entry 
+                                        x:Name="Sha1ValueControl" Text="{Binding HashValueSHA1}"  IsReadOnly="True"
+                                        HorizontalOptions="Fill" VerticalOptions="Center" 
+                                        Style="{StaticResource EntryResultStyle}" />
+                                </Border>
+                                <Button 
+                                    x:Name="Sha1CopyButton" Command="{Binding CopyHashToClipboardCommand}" CommandParameter="{Binding HashValueSHA1}"
+                                    Grid.Row="1" Grid.Column="3" Text="Copy SHA-1" HorizontalOptions="Fill" VerticalOptions="Fill" Padding="10, 0, 0, 0" 
+                                    />
+                                <Label 
+                                    x:Name="Sha256Label" Grid.Row="2" Grid.Column="0" Text="SHA-256: " 
+                                    HorizontalOptions="Start" VerticalOptions="Center" />
+                                <CheckBox 
+                                    x:Name="Sha256Checkbox" Grid.Row="2" Grid.Column="1" IsChecked="{Binding CalculateSHA256}" 
+                                    HorizontalOptions="Start" VerticalOptions="End" />
+                                <Border 
+                                    x:Name="Sha256Border" Grid.Row="2" Grid.Column="2" 
+                                    Style="{StaticResource ControlBorderStyle}" >
+                                    <Entry 
+                                        x:Name="Sha256ValueControl" Text="{Binding HashValueSHA256}" IsReadOnly="True" 
+                                        HorizontalOptions="Fill" VerticalOptions="Center" 
+                                        Style="{StaticResource EntryResultStyle}" />
+                                </Border>
+                                <Button 
+                                    x:Name="Sha256CopyBuyyon"  Command="{Binding CopyHashToClipboardCommand}" CommandParameter="{Binding HashValueSHA256}"
+                                    Grid.Row="2" Grid.Column="3" Text="Copy SHA-256" 
+                                    HorizontalOptions="Fill" VerticalOptions="Fill" Padding="10, 0, 0, 0" />
+                                <Label 
+                                    x:Name="Sha512Label" Grid.Row="3" Grid.Column="0" Text="SHA-512: " 
+                                    HorizontalOptions="Start" VerticalOptions="Center" />
+                                <CheckBox 
+                                    x:Name="Sha512Checkbox" Grid.Row="3" Grid.Column="1" IsChecked="{Binding CalculateSHA512}" 
+                                    HorizontalOptions="Start" VerticalOptions="End" />
+                                <Border 
+                                    x:Name="Sha512Border" Grid.Row="3" Grid.Column="2" 
+                                    Style="{StaticResource ControlBorderStyle}" >
+                                    <Entry 
+                                        x:Name="Sha512ValueControl" Text="{Binding HashValueSHA512}" IsReadOnly="True" 
+                                        HorizontalOptions="Fill" VerticalOptions="Center" 
+                                        Style="{StaticResource EntryResultStyle}" />
+                                </Border>
+                                <Button 
+                                    x:Name="Sha512CopyButton"  Command="{Binding CopyHashToClipboardCommand}" CommandParameter="{Binding HashValueSHA512}"
+                                    Grid.Row="3" Grid.Column="3" Text="Copy SHA-512" HorizontalOptions="Fill" VerticalOptions="Fill" 
+                                    Padding="10, 0, 0, 0" />
 
-                <Label 
-                        x:Name="Sha256Label" Grid.Row="2" Grid.Column="0" Text="SHA-256: " 
-                        HorizontalOptions="Start" VerticalOptions="Center" />
-                <CheckBox 
-                        x:Name="Sha256Checkbox" Grid.Row="2" Grid.Column="1" IsChecked="{Binding CalculateSHA256}" 
-                        HorizontalOptions="Start" VerticalOptions="End" />
-                <Border 
-                        x:Name="Sha256Border" Grid.Row="2" Grid.Column="2" 
-                        Stroke="Gray" Padding="4, 2, 4, 2">
-                    <Entry 
-                            x:Name="Sha256ValueControl" Text="{Binding HashValueSHA256}" IsReadOnly="True" 
-                           HorizontalOptions="Fill" VerticalOptions="Center" />
-                </Border>
-                <Button 
-                        x:Name="Sha256CopyBuyyon"  Command="{Binding CopyHashToClipboardCommand}" CommandParameter="{Binding HashValueSHA256}"
-                        Grid.Row="2" Grid.Column="3" Text="Copy SHA-256" 
-                        HorizontalOptions="Fill" VerticalOptions="Fill" Padding="10, 0, 0, 0" />
-
-                <Label 
-                        x:Name="Sha512Label" Grid.Row="3" Grid.Column="0" Text="SHA-512: " 
-                        HorizontalOptions="Start" VerticalOptions="Center" />
-                <CheckBox 
-                        x:Name="Sha512Checkbox" Grid.Row="3" Grid.Column="1" IsChecked="{Binding CalculateSHA512}" 
-                        HorizontalOptions="Start" VerticalOptions="End" />
-                <Border 
-                        x:Name="Sha512Border" Grid.Row="3" Grid.Column="2" 
-                        Stroke="Gray" Padding="4, 2, 4, 2" >
-                    <Entry 
-                            x:Name="Sha512ValueControl" Text="{Binding HashValueSHA512}" IsReadOnly="True" 
-                           HorizontalOptions="Fill" VerticalOptions="Center" />
-                </Border>
-                <Button 
-                    x:Name="Sha512CopyButton"  Command="{Binding CopyHashToClipboardCommand}" CommandParameter="{Binding HashValueSHA512}"
-                    Grid.Row="3" Grid.Column="3" Text="Copy SHA-512" HorizontalOptions="Fill" VerticalOptions="Fill" Padding="10, 0, 0, 0" />
-
-            </Grid>
-
-
-            <VerticalStackLayout 
-                x:Name="VerifyHashOuterContainer"
-                HorizontalOptions="Fill"
-                >
-
-                <Grid ColumnDefinitions="2*, 1*"
-                    x:Name="VerifyHashCommandContainer"
-                    HorizontalOptions="Fill" 
-                    >
-
-                    <Label Grid.Row="0" Grid.Column="0"
-                        x:Name="VerifyHashLabel" Text="Verify Specific Hash Value (any Supported Type): "
-                        HorizontalOptions="Start"
-                        VerticalOptions="Center"
-                        />
-
-                    <Button Grid.Row="0" Grid.Column="1"
-                        x:Name="VerifyHashButton" Text="Verify Hash"
-                        Command="{Binding VerifyHashCommand}"
-                        HorizontalOptions="End"
-                        VerticalOptions="Center"
-                        />
-
-                </Grid>
+                            </Grid>
 
 
 
-                <Grid 
-                    ColumnDefinitions="Auto, *, Auto"
-                    ColumnSpacing="4"
-                    x:Name="VerifyHashValueContainer"
-                    HorizontalOptions="Fill"
-                    >
+                            <Grid ColumnDefinitions="2*, 1*"
+                                x:Name="VerifyHashCommandContainer"
+                                HorizontalOptions="Fill" 
+                                >
+
+                                <Label Grid.Row="0" Grid.Column="0"
+                                    x:Name="VerifyHashLabel" Text="Verify Specific Hash Value (any Supported Type): "
+                                    HorizontalOptions="Start"
+                                    VerticalOptions="Center"
+                                    />
+                                <Button Grid.Row="0" Grid.Column="1"
+                                    x:Name="VerifyHashButton" Text="Verify Hash"
+                                    Command="{Binding VerifyHashCommand}"
+                                    HorizontalOptions="End"
+                                    VerticalOptions="Center"
+                                    />
+                            </Grid>
+                            <Grid 
+                                x:Name="VerifyHashValueContainer"
+                                ColumnDefinitions="Auto, *, Auto"
+                                ColumnSpacing="4"
+                                HorizontalOptions="Fill"
+                                >
+                                <Label Grid.Row="0" Grid.Column="0"
+                                    x:Name="VerifiedHashValueLabel" Text="Hash value:"
+                                    HorizontalOptions="Start"
+                                    VerticalOptions="Center"
+                                    />
+
+                                <Entry Grid.Row="0" Grid.Column="1"
+                                    x:Name="VerifiedHashValueEnty" Text="{Binding VerifiedHashValue}"
+                                    Placeholder="Hash value to be verified"
+                                    HorizontalOptions="Fill"
+                                    VerticalOptions="Center"
+                                    />
+
+                                <Button Grid.Row="0" Grid.Column="2"
+                                    x:Name="VerifiedHashValueCopyButton" Text="Paste" 
+                                    Command="{Binding PasteVerifiedHashFromClipboardCommand}"
+                                    HorizontalOptions="End"
+                                    VerticalOptions="Center"
+                                    />
+
+                            </Grid>
+
+
+
+                        </VerticalStackLayout>
+
+
+
+                    </Frame>
+
+
+                    <Label  
+                        Grid.Row="1" Grid.Column="0"
+                        x:Name="HashedContentLabel" Text="{Binding TextEntryLabelText}" 
+                        VerticalOptions="Start"
+                        TextColor="Blue" Padding="0" />
+
 
                     <!--
-                    RowDefinitions="1*, 1*, 1*, 1*" 
-                    Grid.Row="0" Grid.Column="1"
+
+
+                    <Frame Grid.Row="2" Grid.Column="0"
+                        HorizontalOptions="Fill"
+                        VerticalOptions="Fill"
+                        >
+
+                    <ScrollView  Grid.Row="2" Grid.Column="0"
+                        BackgroundColor="Green"  Padding="20"
+                        HorizontalOptions="Fill"
+                        VerticalOptions="Fill"
+                        >
+
+                    </ScrollView>
+                    </Frame>
                     -->
+                    
 
-                    <Label Grid.Row="0" Grid.Column="0"
-                        x:Name="VerifiedHashValueLabel" Text="Hash value:"
-                        HorizontalOptions="Start"
-                        VerticalOptions="Center"
-                        />
+                    
+                    
+                    <Editor Grid.Row="2" Grid.Column="0"
+                            x:Name="HashedTextViewOrEntry" Text="{Binding TextToHash}"
+                            IsReadOnly="{Binding IsFileHashing}"
+                            Placeholder="Text to be hashed / File preview"
+                            HorizontalOptions="Fill" 
+                            VerticalOptions="Fill" 
+                            MinimumHeightRequest="100"
+                            Style="{StaticResource EditorResultStyle}"
+                            />
 
-                    <Entry Grid.Row="0" Grid.Column="1"
-                        x:Name="VerifiedHashValueEnty" Text="{Binding VerifiedHashValue}"
-                        Placeholder="Hash value to be verified"
-                        HorizontalOptions="Fill"
-                        VerticalOptions="Center"
-                        />
 
-                    <Button Grid.Row="0" Grid.Column="2"
-                        x:Name="VerifiedHashValueCopyButton" Text="Paste" 
-                        Command="{Binding PasteVerifiedHashFromClipboardCommand}"
-                        HorizontalOptions="Fill"
-                        VerticalOptions="Center"
-                        />
+                    <Border  
+                        Grid.Row="2" Grid.Column="0"
+                        x:Name="ContentBorder" 
+                        HorizontalOptions="Fill" 
+                        VerticalOptions="End" 
+                        Stroke="Green"
+                        BackgroundColor="Green"
+                        StrokeThickness="2"
+                        StrokeShape="RoundRectangle 0, 0, 5, 5"
+                        Padding="10"   >
+                    </Border>
+
+                            
+                                
+                        <!--
+                        
+                        <StackLayout 
+                            Grid.Row="4" Grid.Column="0"
+                            Orientation="Vertical"
+                            VerticalOptions="Start"
+                            BackgroundColor="Orange" 
+                            >
+                        
+                        </StackLayout>
+                    
+                        Grid.Row="0" Grid.Column="0"
+                        Grid.Row="1" Grid.Column="0"
+                        Grid.Row="2" Grid.Column="0"
+                        
+                        -->
+
 
                 </Grid>
 
-
-            </VerticalStackLayout>
-
+            </Frame>
 
 
-        </VerticalStackLayout>
+        </Frame>
+
+    </ScrollView>
 
 
-
-        <Label 
-                x:Name="HashedContentLabel" Text="{Binding TextEntryLabelText}" 
-                TextColor="Blue" Padding="0, 5, 0, 0" />
-
-        <!--
-            <Border 
-                x:Name="HashedContentBorder" 
-                Stroke="Black" StrokeThickness="2" Margin="2" IsEnabled="False" >
-                
-            </Border>
-                
-                
-                
-            -->
-
-        <Editor 
-            x:Name="HashedTextViewOrEntry" Text="{Binding TextToHash}"
-            IsReadOnly="{Binding IsFileHashing}"
-            Placeholder="Text to be hashed / File preview"
-            HorizontalOptions="Fill" VerticalOptions="FillAndExpand" 
-            MinimumHeightRequest="100"
-        />
-
-        <Border x:Name="ContentBorder" 
-            HorizontalOptions="Fill" 
-            VerticalOptions="Start" 
-            Stroke="Green"
-            BackgroundColor="Green"
-            StrokeThickness="2"
-            StrokeShape="RoundRectangle 0, 0, 5, 5"
-            Padding="10"  ZIndex="4" >
-        
-        
-        </Border>
-
-
-
-
-
-
-    </StackLayout>
 
 
 </ContentPage>

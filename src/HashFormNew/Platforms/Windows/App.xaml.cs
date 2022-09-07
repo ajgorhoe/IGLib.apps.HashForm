@@ -23,10 +23,9 @@ public partial class App : MauiWinUIApplication
         /*
         const int WindowWidth = 800;
         const int WindowHeight = 700;
-          
-          
-         */
-        const int WindowWidth = 1200;
+        */
+        
+        const int WindowWidth = 1600;
         const int WindowHeight = 1100;
 
         // Define initial size of the main window: 
