@@ -175,7 +175,7 @@ public partial class MainViewModel :
                 await Task.FromResult(true); // dummy await; ToDo: replace with async method
                 try
                 {
-                    return HashCalculator.CalculateTextHashString(hashType, TextToHash);
+                    return await HashCalculator.CalculateTextHashStringAsync(hashType, TextToHash);
                 }
                 catch
                 {
@@ -198,7 +198,7 @@ public partial class MainViewModel :
                 await Task.FromResult(true); // dummy await; ToDo: replace with async method
                 try
                 {
-                    return HashCalculator.CalculateFileHashString(hashType, FilePath);
+                    return await HashCalculator.CalculateFileHashStringAsync(hashType, FilePath);
                 }
                 catch
                 {
