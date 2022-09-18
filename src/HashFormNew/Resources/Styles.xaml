@@ -199,7 +199,7 @@
 
     <!--
     Style additions to assist DEBUGGING:
-    Remark: apply these style additiions to relevant containers and other elements in order for them
+    Remark: apply these style additions to relevant containers and other elements in order for them
     to have distinctive visual appearance that will help getting insight into UI behavior. Create 
     additional frames aroung visual elements.
     For changing the appearance of UI to normal (to remove distinctive visual clues used for debugging),
@@ -248,7 +248,7 @@
     -->
 
 
-    <!-- Surrogate empty definitions below are not necessary to switch off debug styling, it is 
+    <!-- Empty definitions below are not necessary to switch off debug styling, it is 
     sufficient to just comment out the debug definitions. 
     ToDo: Remove this block later.
     <Style TargetType="Layout" Class="LayoutDebugStyle1" ApplyToDerivedTypes="True" />
@@ -269,7 +269,7 @@
     
     <!-- 
 
-
+    
     <Style TargetType="Layout" Class="LayoutDebugStyle1" ApplyToDerivedTypes="True" >
         <Setter Property="BackgroundColor" Value="{StaticResource DebugBackgroundColor1}" />
         <Setter Property="Padding"         Value=          "{StaticResource DebugPadding1}" />
@@ -289,6 +289,31 @@
         <Setter Property="BackgroundColor" Value="{StaticResource DebugBackgroundColor4}" />
         <Setter Property="Padding"         Value=          "{StaticResource DebugPadding4}" />
         <Setter Property="Margin"          Value=           "{StaticResource DebugMargin4}" />
+    </Style>
+
+    <Style TargetType="Border" Class="BorderDebugStyle1" ApplyToDerivedTypes="True" >
+        <Setter Property="BackgroundColor" Value="{StaticResource DebugBackgroundColor1}" />
+        <Setter Property="Padding"         Value=          "{StaticResource DebugPadding1}" />
+        <Setter Property="Margin"          Value=           "{StaticResource DebugMargin1}" />
+        <Setter Property="Stroke"          Value=    "{StaticResource DebugBorderColor1}" />
+    </Style>
+    <Style TargetType="Border" Class="BorderDebugStyle2" ApplyToDerivedTypes="True" >
+        <Setter Property="BackgroundColor" Value="{StaticResource DebugBackgroundColor2}" />
+        <Setter Property="Padding"         Value=          "{StaticResource DebugPadding2}" />
+        <Setter Property="Margin"          Value=           "{StaticResource DebugMargin2}" />
+        <Setter Property="Stroke"          Value     ="{StaticResource DebugBorderColor2}" />
+    </Style>
+    <Style TargetType="Border" Class="BorderDebugStyle3" ApplyToDerivedTypes="True" >
+        <Setter Property="BackgroundColor" Value="{StaticResource DebugBackgroundColor3}" />
+        <Setter Property="Padding"         Value=          "{StaticResource DebugPadding3}" />
+        <Setter Property="Margin"          Value=           "{StaticResource DebugMargin3}" />
+        <Setter Property="Stroke"          Value     ="{StaticResource DebugBorderColor3}" />
+    </Style>
+    <Style TargetType="Border" Class="BorderDebugStyle4" ApplyToDerivedTypes="True" >
+        <Setter Property="BackgroundColor" Value="{StaticResource DebugBackgroundColor4}" />
+        <Setter Property="Padding"         Value=          "{StaticResource DebugPadding4}" />
+        <Setter Property="Margin"          Value=           "{StaticResource DebugMargin4}" />
+        <Setter Property="Stroke"          Value=     "{StaticResource DebugBorderColor4}" />
     </Style>
 
     <Style TargetType="Frame" Class="FrameDebugStyle1" ApplyToDerivedTypes="True" >
@@ -316,6 +341,8 @@
         <Setter Property="BorderColor"     Value=     "{StaticResource DebugBorderColor4}" />
     </Style>
 
+    
+    
     -->
 
 
