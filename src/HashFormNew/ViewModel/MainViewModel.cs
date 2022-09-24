@@ -217,10 +217,10 @@ public partial class MainViewModel :
         if (string.IsNullOrEmpty(VerifiedHashValue))
         {
             ServiceProvider?.GetService<IG.App.IAlertService>()?.ShowAlert(
-                "Warning",  "Hash value to be verified is not specified.");
+                "Warning", "Hash value to be verified is not specified.");
             return;
         }
-        VerifiedHashValue = IsUpperCaseHashes? VerifiedHashValue.ToUpper(): VerifiedHashValue.ToLower();
+        VerifiedHashValue = IsUpperCaseHashes ? VerifiedHashValue.ToUpper() : VerifiedHashValue.ToLower();
         string matchedHashType = null;
         if (string.IsNullOrEmpty(matchedHashType))
         {
@@ -273,16 +273,16 @@ public partial class MainViewModel :
         if (string.IsNullOrEmpty(matchedHashType))
         {
             ServiceProvider?.GetService<IG.App.IAlertService>()?.ShowAlert(
-                "WARNING",  "The specified hash value: " + Environment.NewLine
+                "WARNING", "The specified hash value: " + Environment.NewLine
                 + $"  {VerifiedHashValue}" + Environment.NewLine
                 + "does NOT correspond to any type of hashes considered by this application.");
         }
         else
         {
             ServiceProvider?.GetService<IG.App.IAlertService>()?.ShowAlert(
-                "Info",  "The specified hash value: " + Environment.NewLine
+                "Info", "The specified hash value: " + Environment.NewLine
                 + $"  {VerifiedHashValue}" + Environment.NewLine
-                + $"corresponds to the {matchedHashType} hash of the specified {(IsFileHashing? "file": "text")}.");
+                + $"corresponds to the {matchedHashType} hash of the specified {(IsFileHashing ? "file" : "text")}.");
 
         }
     }
@@ -306,7 +306,7 @@ public partial class MainViewModel :
             {
                 try
                 {
-                    IsCalculating = true;
+                    ++NumActiveCalculationTasks;
                     List<Task<string>> hashingTasks = new List<Task<string>>();
                     Task<string> hashTaskMD5 = null;
                     Task<string> hashTaskSHA1 = null;
@@ -341,7 +341,7 @@ public partial class MainViewModel :
                     //if (hashTaskSHA1 != null) { HashValueSHA1 = await hashTaskSHA1; ++numHashesCAlculated; }
                     //if (hashTaskSHA256 != null) { HashValueSHA256 = await hashTaskSHA256; ++numHashesCAlculated; }
                     //if (hashTaskSHA512 != null) { HashValueSHA512 = await hashTaskSHA512; ++numHashesCAlculated; }
-                    
+
                     var x = await Task.WhenAny(hashingTasks);
 
                     while (hashingTasks.Count > 0)
@@ -376,38 +376,6 @@ public partial class MainViewModel :
                             ++numHashesCAlculated;
                         }
                     }
-
-
-                        
-                    //while (hashingTasks.Count > 0)
-                    //{
-                    //    Task<string>[] awaitedTasks = hashingTasks.ToArray();
-                    //    int completedTaskIndex = Task.WaitAny(awaitedTasks);
-                    //    Task<string> completedTask = awaitedTasks[completedTaskIndex];
-                    //    hashingTasks.RemoveAt(completedTaskIndex);
-                    //    if (completedTask == hashTaskMD5)
-                    //    {
-                    //        HashValueMD5 = await completedTask;
-                    //        ++numHashesCAlculated;
-                    //    }
-                    //    else if (completedTask == hashTaskSHA1)
-                    //    {
-                    //        HashValueSHA1 = await completedTask;
-                    //        ++numHashesCAlculated;
-                    //    }
-                    //    else if (completedTask == hashTaskSHA256)
-                    //    {
-                    //        HashValueSHA256 = await completedTask;
-                    //        ++numHashesCAlculated;
-                    //    }
-                    //    else if (completedTask == hashTaskSHA512)
-                    //    {
-                    //        HashValueSHA512 = await completedTask;
-                    //        ++numHashesCAlculated;
-                    //    }
-                    //}
-
-
                 }
                 catch
                 {
@@ -415,8 +383,17 @@ public partial class MainViewModel :
                 }
                 finally
                 {
-                    IsCalculating = false;
+                    --NumActiveCalculationTasks;
                     RefreshIsHashesOutdated(false);
+                    /*
+                    // Attempt to refresh bindings to IsCalculating: - does ot work, should probably use timer events.
+                    await Task.Delay(10)
+                        .ContinueWith(async (t) => { 
+                            await (Task.FromResult(0)); 
+                            OnPropertyChanged(nameof(NumActiveCalculationTasks)); 
+                            OnPropertyChanged(nameof(IsCalculating)); 
+                        });
+                    */
                 }
             }
             else
@@ -603,6 +580,7 @@ public partial class MainViewModel :
                 }
                 RefreshInputDataSufficient();
                 RefreshIsHashesOutdated();
+                OnPropertyChanged(nameof(IsHashesCalculated));
             }
         }
     }
@@ -841,7 +819,7 @@ public partial class MainViewModel :
     /// tasks dependent on this property.</summary>
     /// <param name="performAutomaticCalculations">If false then automatic calculations ae not performed.
     /// Default is true.</param>
-    public bool RefreshIsHashesOutdated(bool performAutomaticCalculations =  true)
+    public bool RefreshIsHashesOutdated(bool performAutomaticCalculations = true)
     {
         bool isOutdated = GetHashesOutdated();  // this will also call OnPropertyChanged(nameof(IsHashesOutdated));
         if (isOutdated)
@@ -892,6 +870,7 @@ public partial class MainViewModel :
         {
             _isHashesOutdated = isOutdated;
             OnPropertyChanged(nameof(IsHashesOutdated));
+            OnPropertyChanged(nameof(IsHashesCalculated));
         }
         return isOutdated;
     }
@@ -907,25 +886,53 @@ public partial class MainViewModel :
         }
     }
 
+    public bool IsHashesCalculated
+    {
+        get => IsInputDataSufficient && !IsHashesOutdated;
+    }
+
+
+    private int _numActiveCalculationTasks = 0;
+
+    public int NumActiveCalculationTasks
+    {
+        get
+        {
+            return _numActiveCalculationTasks;
+        }
+        protected set
+        {
+            if (value != _numActiveCalculationTasks)
+            {
+                _numActiveCalculationTasks = value;
+                OnPropertyChanged(nameof(NumActiveCalculationTasks));
+            }
+            IsCalculating = _numActiveCalculationTasks > 0;
+            OnPropertyChanged(nameof(IsCalculating));
+        }
+    }
+
     private bool _isCalculating = false;
 
     /// <summary>Wheen changed to true, this also triggers actual calculation of hash values!</summary>
     public bool IsCalculating
     {
         get => _isCalculating;
-        set
+        protected set
         {
             if (value != _isCalculating)
             {
-                if (value == true && !IsHashesOutdated)
-                {
-                    // Hashes are not outdated, no need to do calculation!
-                    return;
-                }
+                //if (value == true && !IsHashesOutdated)
+                //{
+                //    // ToDo:
+                //    // Move this check to locations where the NumCalculationTasks counter is increased!
+
+                //    // Hashes are not outdated, no need to do calculation!
+                //    return;
+                //}
                 _isCalculating = value;
-                OnPropertyChanged(nameof(IsCalculating));
-                // ToDo: trigger calculation!
             }
+            OnPropertyChanged(nameof(IsCalculating));
         }
     }
 
@@ -938,6 +945,9 @@ public partial class MainViewModel :
         OnPropertyChanged(nameof(HashValueSHA1));
         OnPropertyChanged(nameof(HashValueSHA256));
         OnPropertyChanged(nameof(HashValueSHA512));
+        // Other properties - to make UI work properly (bugs in MAUI?) - however, the trick does not work at all.
+        OnPropertyChanged(nameof(NumActiveCalculationTasks));
+        OnPropertyChanged(nameof(IsCalculating));
     }
 
     private string _hashValueMD5 = null;
@@ -1125,6 +1135,7 @@ public partial class MainViewModel :
     protected string LastTextToHashWhenTextHashing { get; set; } = null;
 
 
-
-
 }
+
+
+

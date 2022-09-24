@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="IG.App.MainPage"
              xmlns:viewmodel="clr-namespace:IG.App.ViewModel"
+             xmlns:IGUI="clr-namespace:IG.UI"
              x:DataType="viewmodel:MainViewModel"
              
              MinimumWidthRequest="400" MinimumHeightRequest="600"
@@ -10,7 +11,11 @@
              BackgroundColor="{StaticResource Page_BackgroundColor_LightTheme}"
              >
 
-
+    <ContentPage.Resources>
+        <IGUI:InvertBoolConverter x:Key="InverseBoolConverter" />
+        <IGUI:MainIndicatorLightMultiConverter x:Key="MainIndicatorLightMultiConverter" />
+    </ContentPage.Resources>
+    
     <ScrollView>
 
         <Frame 
@@ -42,11 +47,10 @@
                         >
 
                         <VerticalStackLayout Grid.Row="0" Grid.Column="0"
-                        x:Name="OuterLayout"  
-                        HorizontalOptions="Fill" 
-                        VerticalOptions="Start"
-                        >
-
+                            x:Name="OuterLayout"  
+                            HorizontalOptions="Fill" 
+                            VerticalOptions="Start"
+                            >
                             <Grid 
                             x:Name="TopControlsContainer"
                             Margin="0" 
@@ -55,78 +59,161 @@
                             >
 
                                 <HorizontalStackLayout 
-                        x:Name="FileSwitchContainer"
-                        HorizontalOptions="Start" Spacing="0" >
+                                    x:Name="FileSwitchContainer"
+                                    HorizontalOptions="Start" Spacing="0" >
                                     <RadioButton x:Name="FileSwitch" IsChecked="{Binding IsFileHashing}" Content="Files" HorizontalOptions="Start" />
                                     <RadioButton x:Name="TextSwitxh" IsChecked="{Binding IsTextHashing}" Content="Text"  HorizontalOptions="Start" />
                                 </HorizontalStackLayout>
 
                                 <HorizontalStackLayout HorizontalOptions="End" Spacing="4"  >
                                     <Label x:Name="DebugSwitchLabel"
-                            Text="Debug Info:"
-                            IsVisible="{Binding IsDebugMode}"
-                            HorizontalOptions="End" VerticalOptions="Center" />
-                                    <CheckBox x:Name="DebugCheckBox" IsChecked="{Binding IsDebugInfoVisible}"  
-                            BackgroundColor="Black" Color="Blue"
-                            IsVisible="{Binding IsDebugMode}"    HorizontalOptions="End" 
-                            Margin="4, 0, 8, 0" />
+                                        Text="Debug Info:"
+                                        IsVisible="{Binding IsDebugMode}"
+                                        HorizontalOptions="End" VerticalOptions="Center" />
+                                                <CheckBox x:Name="DebugCheckBox" IsChecked="{Binding IsDebugInfoVisible}"  
+                                        BackgroundColor="Black" Color="Blue"
+                                        IsVisible="{Binding IsDebugMode}"    HorizontalOptions="End" 
+                                        Margin="4, 0, 8, 0" />
                                     <Button 
-                            x:Name="ButtonForContext" Text="Help" 
-                            Command="{Binding HelpCommand}"
-                            HorizontalOptions="End" />
+                                        x:Name="ButtonForContext" Text="Help" 
+                                        Command="{Binding HelpCommand}"
+                                        HorizontalOptions="End" />
                                     <Button Text="About"
-                             Command="{Binding AboutCommand}"
-                             HorizontalOptions="End" />
-                                </HorizontalStackLayout>
+                                     Command="{Binding AboutCommand}"
+                                     HorizontalOptions="End" />
+                                        </HorizontalStackLayout>
                             </Grid>
 
                             <Grid x:Name="FileSelectContainer"
-                            HorizontalOptions="Fill" RowDefinitions="*" ColumnDefinitions="Auto, *, Auto"
-                            ColumnSpacing="4" >
+                                HorizontalOptions="Fill" RowDefinitions="*" ColumnDefinitions="Auto, *, Auto"
+                                ColumnSpacing="4" >
 
 
                                 <Label 
-                        x:Name="FileSelectLabel" 
-                        Text="File: " Grid.Row="0" Grid.Column="0" HorizontalOptions="Center" 
-                        VerticalOptions="Center"></Label>
+                                    x:Name="FileSelectLabel" 
+                                    Text="File: " Grid.Row="0" Grid.Column="0" HorizontalOptions="Center" 
+                                    VerticalOptions="Center"></Label>
                                 <Entry 
-                        x:Name="FileSelectEntry" Placeholder="File Path"  Grid.Row="0" Grid.Column="1"
-                        Text="{Binding FilePath}" IsEnabled="{Binding IsFileHashing}"
-                        HorizontalOptions="Fill" VerticalOptions="Center"
-                        >
+                                    x:Name="FileSelectEntry" Placeholder="File Path"  Grid.Row="0" Grid.Column="1"
+                                    Text="{Binding FilePath}" IsEnabled="{Binding IsFileHashing}"
+                                    HorizontalOptions="Fill" VerticalOptions="Center"
+                                    >
                                     <Entry.GestureRecognizers>
                                         <DropGestureRecognizer
-                        
-                            DragOver="OnDragOverFileEntry"
-                            DragLeave="OnDragLeaveFileEntry"
-                            Drop="OnDropFileEntry"
-                        />
+                                        DragOver="OnDragOverFileEntry"
+                                        DragLeave="OnDragLeaveFileEntry"
+                                        Drop="OnDropFileEntry"
+                                        />
 
                                         <!--
-                            DragOver="OnDragOverFileEntry"
-                            DragLeave="OnDragLeaveFileEntry"
-                            Drop="OnDropFileEntry"
-                        -->
+                                        DragOver="OnDragOverFileEntry"
+                                        DragLeave="OnDragLeaveFileEntry"
+                                        Drop="OnDropFileEntry"
+                                        -->
 
                                     </Entry.GestureRecognizers>
                                 </Entry>
                                 <Button
-                        x:Name="FileBrowseButton" 
-                        Text="Browse" IsEnabled="{Binding IsFileHashing}" Clicked="OnButtonBrowseClicked" 
-                        Grid.Row="0" Grid.Column="2" 
-                        HorizontalOptions="End" VerticalOptions="Center"  Margin="10, 0, 0, 0"></Button>
+                                    x:Name="FileBrowseButton" 
+                                    Text="Browse" IsEnabled="{Binding IsFileHashing}" Clicked="OnButtonBrowseClicked" 
+                                    Grid.Row="0" Grid.Column="2" 
+                                    HorizontalOptions="End" VerticalOptions="Center"  Margin="10, 0, 0, 0">
+                                </Button>
                             </Grid>
 
                             <HorizontalStackLayout x:Name="CalculateButtonsContainer" 
-                    Margin="0" HorizontalOptions="Fill">
-
-                                <Button x:Name="CalculateButton" Text="Calculate Hash Values" 
-                                    Clicked="OnButtonCalculateClicked"
-                                    HorizontalOptions="End" />
-                                <Button x:Name="ClearButton" Text="Clear Hash Values" 
-                                    Clicked="OnButtonClearClicked"
-                                    HorizontalOptions="End" />
+                                Margin="0" HorizontalOptions="Fill">
                             </HorizontalStackLayout>
+
+                            <Grid 
+                            x:Name="CalculateButtonsOuterContainer"
+                            Margin="0" Padding="0"
+                            HorizontalOptions="Fill"
+                            VerticalOptions="Fill"
+                            >
+
+                                <ActivityIndicator IsRunning="{Binding IsCalculating}" IsVisible="{Binding IsCalculating}" 
+                                    Color="DarkRed" />
+
+                                <HorizontalStackLayout 
+                                    x:Name="CalculateButtonsLeftContainer"
+                                    HorizontalOptions="Start" Spacing="0" >
+                                    
+                                    <!--
+                                        REMARK: with CalculateButton, the IsVisible binding below behaves correctly, but IsEnabled does not.
+                                        IsEnabled="{Binding IsCalculating, Converter={StaticResource InverseBoolConverter} }"
+                                        IsVisible="{Binding IsCalculating, Converter={StaticResource InverseBoolConverter} }"
+                                    -->
+                                    <Button x:Name="CalculateButton" Text="Calculate Hashes" 
+                                        Clicked="OnButtonCalculateClicked"
+                                        HorizontalOptions="Start" />
+                                    <Button x:Name="ClearButton" Text="Clear Values" 
+                                        IsEnabled="{Binding IsCalculating, Converter={StaticResource InverseBoolConverter} }"
+                                        Clicked="OnButtonClearClicked"
+                                        HorizontalOptions="End" />
+                                    
+                                    <!--
+                                    Remark: Eventually, the indicator light may be surrounded by a frame or border. Currently this is not used.
+                                    <Frame
+                                        x:Name="IndicatorFrame"
+                                        BorderColor="DarkGray"
+                                        CornerRadius="0"
+                                        Margin="0,5,10,5"
+                                        Padding="2"
+                                        HorizontalOptions="Start"
+                                        VerticalOptions="Fill"
+                                        >
+                                    </Frame>
+                                    -->
+                                    <BoxView 
+                                        x:Name="IndicatorLight"
+                                        WidthRequest="20"
+                                        HorizontalOptions="StartAndExpand"
+                                        VerticalOptions="Fill"
+                                        Margin="10,5,2,5"
+                                        >
+
+                                        <BoxView.Color>
+                                            <MultiBinding Mode="OneWay" >
+                                                <MultiBinding.Converter>
+                                                    <IGUI:MainIndicatorLightMultiConverter
+                                                        InsufficientDataColor="Red"
+                                                        SufficientDataColor="DarkGreen"
+                                                        CalculatingColor="BlueViolet"
+                                                        CalculatedColor="LimeGreen"
+                                                        >
+                                                    </IGUI:MainIndicatorLightMultiConverter>
+                                                </MultiBinding.Converter>
+                                                
+                                                <Binding Path="IsInputDataSufficient" />
+                                                <Binding Path="IsCalculating" />
+                                                <Binding Path="IsHashesCalculated" />
+                                            </MultiBinding>
+                                        </BoxView.Color>
+                                    </BoxView>
+                                        
+                                </HorizontalStackLayout>
+
+                                <HorizontalStackLayout 
+                                    x:Name="CalculateButtonsRightContainer"
+                                    Margin="0" Padding="0"
+                                    HorizontalOptions="End" Spacing="4"  >
+                                    
+                                    
+                                    <Button Text="Query VirusTotal"
+                                         IsVisible="false"
+                                         Command="{Binding AboutCommand}"
+                                         HorizontalOptions="End" />
+                                    
+                                    <!--
+                                    <Button 
+                                        x:Name="CancelButton" Text="Cancel" 
+                                        Command="{Binding HelpCommand}"
+                                        IsVisible="{Binding IsCalculating}"
+                                        HorizontalOptions="End" />
+                                    -->
+                                </HorizontalStackLayout>
+                            </Grid>
 
 
                             <HorizontalStackLayout x:Name="CalculateOptionsContainer" 
@@ -146,14 +233,14 @@
                             </HorizontalStackLayout>
 
                             <Border x:Name="DebugInfoBorder"
-                    IsVisible="{Binding IsDebugInfoVisible}" 
-                    HorizontalOptions="Fill"
-                    Stroke="LightBlue"
-                    StrokeThickness="2"
-                    StrokeShape="RoundRectangle 5,5,5,5"
-                    Background="Transparent"
-                    Padding="10, 5, 10, 5" 
-                    >
+                                IsVisible="{Binding IsDebugInfoVisible}" 
+                                HorizontalOptions="Fill"
+                                Stroke="LightBlue"
+                                StrokeThickness="2"
+                                StrokeShape="RoundRectangle 5,5,5,5"
+                                Background="Transparent"
+                                Padding="10, 5, 10, 5" 
+                                >
 
                                 <VerticalStackLayout 
                     x:Name="DebugInfoContainer"
@@ -162,10 +249,16 @@
                                     <HorizontalStackLayout 
                             x:Name="HashValuesInfoContainer"
                             Spacing="4" HorizontalOptions="Fill" >
+                                        <Label Text="IsCalculating: " HorizontalOptions="Start" VerticalOptions="Center"></Label>
+                                        <Label Text="{Binding IsCalculating}" HorizontalOptions="Start" VerticalOptions="Center"></Label>
+                                        <Label Text="NumCalculaions: " HorizontalOptions="Start" VerticalOptions="Center"></Label>
+                                        <Label Text="{Binding NumActiveCalculationTasks}" HorizontalOptions="Start" VerticalOptions="Center"></Label>
                                         <Label Text="MD5: " HorizontalOptions="Start" VerticalOptions="Center"></Label>
                                         <Label Text="{Binding HashValueMD5}" HorizontalOptions="Start" VerticalOptions="Center"></Label>
+                                        <!--
                                         <Label Text="SHA1: " HorizontalOptions="Start" VerticalOptions="Center"></Label>
                                         <Label Text="{Binding HashValueSHA1}" HorizontalOptions="Start" VerticalOptions="Center"></Label>
+                                        -->
                                     </HorizontalStackLayout>
                                     <HorizontalStackLayout 
                             x:Name="DragDropInfoContainer"
@@ -206,19 +299,19 @@
                             </Border>
 
                             <Grid 
-                    x:Name="HashValuesGrid"
-                    HorizontalOptions="Fill" 
-                    RowDefinitions="1*, 1*, 1*, 1*" 
-                    ColumnDefinitions="Auto, Auto, *, Auto"
-                    RowSpacing="4" ColumnSpacing="4"
-                    >
+                                x:Name="HashValuesGrid"
+                                HorizontalOptions="Fill" 
+                                RowDefinitions="1*, 1*, 1*, 1*" 
+                                ColumnDefinitions="Auto, Auto, *, Auto"
+                                RowSpacing="4" ColumnSpacing="4"
+                                >
 
                                 <Label  x:Name="Md5Label" Grid.Row="0" Grid.Column="0" 
-                        Text="MD5:" 
-                        HorizontalOptions="Start" VerticalOptions="Center" />
+                                    Text="MD5:" 
+                                    HorizontalOptions="Start" VerticalOptions="Center" />
                                 <CheckBox  x:Name="Md5Checkbox" Grid.Row="0" Grid.Column="1" 
-                        IsChecked="{Binding CalculateMD5}" 
-                        HorizontalOptions="Start" VerticalOptions="End" />
+                                    IsChecked="{Binding CalculateMD5}" 
+                                    HorizontalOptions="Start" VerticalOptions="End" />
                                 <Border 
                                     x:Name ="Md5Border" Grid.Row="0" Grid.Column="2"
                                     Style="{StaticResource ControlBorderStyle}"
