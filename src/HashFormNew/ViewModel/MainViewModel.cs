@@ -111,6 +111,23 @@ public partial class MainViewModel :
                 Environment.NewLine + "http://www2.arnes.si/~ljc3m2/igor/software/IGLibShellApp/HashForm.html");
         });
 
+    public ICommand CancelCurrentOpperationCommand => new Command(
+        execute: () =>
+        {
+            var tokenSource = CancellationTokenSource;
+            if (tokenSource == null)
+            {
+                ServiceProvider?.GetService<IG.App.IAlertService>()?.ShowAlert(
+                    "Warning", "No operations available for cancellation.");
+            }
+            else
+            {
+                tokenSource.Cancel();
+                ServiceProvider?.GetService<IG.App.IAlertService>()?.ShowAlert(
+                    "Info", "The current calculation has been cancelled.");
+            }
+        });
+
     public ICommand CopyHashToClipboardCommand => new Command<string>(
             execute: (string param) =>
             {
@@ -163,8 +180,9 @@ public partial class MainViewModel :
 
     /// <summary>Calculate hash function of specific type on the current input from this class.</summary>
     /// <param name="hashType">Typ of the hash function applied.</param>
+    /// <param name="cancellationToken">Optional cancellation token that can be used to cancel the calculation.</param>
     /// <returns></returns>
-    protected async Task<string> CalculateHashAsync(string hashType)
+    protected async Task<string> CalculateHashAsync(string hashType, CancellationToken cancellationToken = default)
     {
         if (IsTextHashing)
         {
@@ -198,7 +216,7 @@ public partial class MainViewModel :
                 await Task.FromResult(true); // dummy await; ToDo: replace with async method
                 try
                 {
-                    return await HashCalculator.CalculateFileHashStringAsync(hashType, FilePath);
+                    return await HashCalculator.CalculateFileHashStringAsync(hashType, FilePath, cancellationToken);
                 }
                 catch
                 {
@@ -295,17 +313,24 @@ public partial class MainViewModel :
             }
         );
 
+    /// <summary>Used to cancel potentially long lasting operations.</summary>
+    protected CancellationTokenSource CancellationTokenSource { get; set; } = null;
 
+
+    /// <summary>Calculates the eventual missing hash values according to the parameters of the current ViewModel.</summary>
+    /// <exception cref="InvalidOperationException"></exception>
     public async void CalculateMissingHashesAsync()
     {
+
         int numHashesCAlculated = 0;
-        // ToDo: fix IsHashesOutdated, then remove "|| true"" 
         if (IsHashesOutdated)
         {
             if (IsInputDataSufficient)
             {
                 try
                 {
+                    CancellationTokenSource = new CancellationTokenSource();
+                    CancellationToken calculationToken = CancellationTokenSource.Token;
                     ++NumActiveCalculationTasks;
                     List<Task<string>> hashingTasks = new List<Task<string>>();
                     Task<string> hashTaskMD5 = null;
@@ -314,33 +339,20 @@ public partial class MainViewModel :
                     Task<string> hashTaskSHA512 = null;
                     if (CalculateMD5 && string.IsNullOrEmpty(HashValueMD5))
                     {
-                        hashingTasks.Add(hashTaskMD5 = CalculateHashAsync(HashConst.MD5Hash));
-                        //string hashValue = await CalculateHashAsync(HashConst.MD5Hash);
-                        //HashValueMD5 = hashValue;
+                        hashingTasks.Add(hashTaskMD5 = CalculateHashAsync(HashConst.MD5Hash, calculationToken));
                     }
                     if (CalculateSHA1 && string.IsNullOrEmpty(HashValueSHA1))
                     {
-                        hashingTasks.Add(hashTaskSHA1 = CalculateHashAsync(HashConst.SHA1Hash));
-                        //string hashValue = await CalculateHashAsync(HashConst.SHA1Hash);
-                        //HashValueSHA1 = hashValue;
+                        hashingTasks.Add(hashTaskSHA1 = CalculateHashAsync(HashConst.SHA1Hash, calculationToken));
                     }
                     if (CalculateSHA256 && string.IsNullOrEmpty(HashValueSHA256))
                     {
-                        hashingTasks.Add(hashTaskSHA256 = CalculateHashAsync(HashConst.SHA256Hash));
-                        //string hashValue = await CalculateHashAsync(HashConst.SHA256Hash);
-                        //HashValueSHA256 = hashValue;
+                        hashingTasks.Add(hashTaskSHA256 = CalculateHashAsync(HashConst.SHA256Hash, calculationToken));
                     }
                     if (CalculateSHA512 && string.IsNullOrEmpty(HashValueSHA512))
                     {
-                        hashingTasks.Add(hashTaskSHA512 = CalculateHashAsync(HashConst.SHA512Hash));
-                        //string hashValue = await CalculateHashAsync(HashConst.SHA512Hash);
-                        //HashValueSHA512 = hashValue;
+                        hashingTasks.Add(hashTaskSHA512 = CalculateHashAsync(HashConst.SHA512Hash, calculationToken));
                     }
-
-                    //if (hashTaskMD5 != null) { HashValueMD5 = await hashTaskMD5; ++numHashesCAlculated; }
-                    //if (hashTaskSHA1 != null) { HashValueSHA1 = await hashTaskSHA1; ++numHashesCAlculated; }
-                    //if (hashTaskSHA256 != null) { HashValueSHA256 = await hashTaskSHA256; ++numHashesCAlculated; }
-                    //if (hashTaskSHA512 != null) { HashValueSHA512 = await hashTaskSHA512; ++numHashesCAlculated; }
 
                     var x = await Task.WhenAny(hashingTasks);
 
@@ -377,12 +389,18 @@ public partial class MainViewModel :
                         }
                     }
                 }
+                catch(OperationCanceledException)
+                {
+                    ServiceProvider?.GetService<IG.App.IAlertService>()?.ShowAlert("Warning", 
+                        "Operation was cancelled.");
+                }
                 catch
                 {
                     throw;
                 }
                 finally
                 {
+                    CancellationTokenSource = null;
                     --NumActiveCalculationTasks;
                     RefreshIsHashesOutdated(false);
                     /*

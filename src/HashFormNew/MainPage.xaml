@@ -206,12 +206,12 @@
                                          HorizontalOptions="End" />
                                     
                                     <!--
+                                    -->
                                     <Button 
                                         x:Name="CancelButton" Text="Cancel" 
-                                        Command="{Binding HelpCommand}"
+                                        Command="{Binding CancelCurrentOpperationCommand}"
                                         IsVisible="{Binding IsCalculating}"
                                         HorizontalOptions="End" />
-                                    -->
                                 </HorizontalStackLayout>
                             </Grid>
 
