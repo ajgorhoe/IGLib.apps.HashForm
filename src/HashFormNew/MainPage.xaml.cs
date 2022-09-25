@@ -1,4 +1,5 @@
 ﻿using IG.App.ViewModel;
+using IG.Crypto;
 using System;
 using System.Diagnostics;
 using Windows.ApplicationModel.Background;
@@ -106,30 +107,30 @@ public partial class MainPage : ContentPage
     }
 
 
-    async void OnButtonHelpClicked(object sender, EventArgs args)
+    async void ButtonHelp_Clicked(object sender, EventArgs args)
     {
         await DisplayAlert("Help", "Help is not implemented yet", "OK");
     }
 
-    async void OnButtonAboutClicked(object sender, EventArgs args)
+    async void ButtonAbout_Clicked(object sender, EventArgs args)
     {
         await DisplayAlert("Info", "New HashForm application, 2022", "OK");
     }
 
-    async void OnButtonTestClicked(object sender, EventArgs args)
+    async void ButtonTest_Clicked(object sender, EventArgs args)
     {
         await DisplayAlert("Info", "New HashForm application, 2022", "OK");
     }
 
 
-     void OnButtonClearClicked(object sender, EventArgs args)
+     void ButtonClear_Clicked(object sender, EventArgs args)
     {
         ViewModel.InvalidateHashValues();
     }
 
     
 
-    async void OnButtonCalculateClicked(object sender, EventArgs args)
+    async void ButtonCalculate_Clicked(object sender, EventArgs args)
     {
         try
         {
@@ -142,6 +143,35 @@ public partial class MainPage : ContentPage
         catch (Exception ex)
         {
             await DisplayAlert("ERROR", $"Error in computation of hash values: {ex.Message}", "OK");
+        }
+    }
+
+    const string VirusTotalBaseAddress = "https://www.virustotal.com/gui/file/";
+
+    const string VirusTotalAddressAppendix = "?nocache=1";
+
+    async void ButtonQueryVirusTotal_Clicked(object sender, EventArgs args)
+    {
+        string browserAddress = null;
+        string sha256Hash = null;
+        
+        try
+        {
+            sha256Hash = ViewModel.GetHashValue(HashConst.SHA256Hash);
+            if (string.IsNullOrEmpty(sha256Hash))
+            {
+                sha256Hash = await ViewModel.CalculateHashAsync(HashConst.SHA256Hash);
+            }
+            browserAddress = VirusTotalBaseAddress + sha256Hash + VirusTotalAddressAppendix;
+
+            Uri uri = new Uri(browserAddress);
+            await Browser.Default.OpenAsync(uri, BrowserLaunchMode.SystemPreferred);
+
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("ERROR", $"Error when browsing to:{Environment.NewLine}  {browserAddress}{Environment.NewLine}"
+                + $"Error message: {Environment.NewLine}  {ex.Message}", "OK");
         }
     }
 

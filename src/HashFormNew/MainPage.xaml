@@ -145,11 +145,11 @@
                                         IsVisible="{Binding IsCalculating, Converter={StaticResource InverseBoolConverter} }"
                                     -->
                                     <Button x:Name="CalculateButton" Text="Calculate Hashes" 
-                                        Clicked="OnButtonCalculateClicked"
+                                        Clicked="ButtonCalculate_Clicked"
                                         HorizontalOptions="Start" />
                                     <Button x:Name="ClearButton" Text="Clear Values" 
                                         IsEnabled="{Binding IsCalculating, Converter={StaticResource InverseBoolConverter} }"
-                                        Clicked="OnButtonClearClicked"
+                                        Clicked="ButtonClear_Clicked"
                                         HorizontalOptions="End" />
                                     
                                     <!--
@@ -201,8 +201,8 @@
                                     
                                     
                                     <Button Text="Query VirusTotal"
-                                         IsVisible="false"
-                                         Command="{Binding AboutCommand}"
+                                         IsVisible="{Binding IsInputDataSufficient}"
+                                         Clicked="ButtonQueryVirusTotal_Clicked"
                                          HorizontalOptions="End" />
                                     
                                     <!--

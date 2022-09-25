@@ -10,6 +10,8 @@ using System.Text;
 using System.Windows.Input;
 using System.Reflection;
 using Windows.UI.WebUI;
+using System.Threading;
+using System.Reflection.Metadata.Ecma335;
 // using static CommunityToolkit.Mvvm.ComponentModel.__Internals.__TaskExtensions.TaskAwaitableWithoutEndValidation;
 
 namespace IG.App.ViewModel;
@@ -42,6 +44,8 @@ public partial class MainViewModel :
 #else
         IsDebugMode = false;
 #endif
+
+        InitHashMapping();
 
         LaunchInfoDialogCommand = new Command(
             execute: () =>
@@ -95,12 +99,93 @@ public partial class MainViewModel :
         }
     }
 
+
+    // Mapping between hash values and UI:
+
+    public class HashMappingElement
+    {
+        public string HashType { get; init; }
+
+        public Func<string> GetValue { get; init; }
+
+        public Action<string> SetValue { get; init; }
+
+        public Func<bool> IsCalculationRequired { get; init; }
+
+    }
+
+    protected Dictionary<string, HashMappingElement> HashMapping { get; } = new Dictionary<string, HashMappingElement>();
+
+    public virtual IReadOnlyCollection<string> HashTypes => HashMapping.Keys;
+
+    protected virtual void InitHashMapping()
+    {
+        HashMapping[HashConst.MD5Hash] = new HashMappingElement
+        {
+            HashType = HashConst.MD5Hash,
+            GetValue = () => { return HashValueMD5; },
+            SetValue = (value) => { HashValueMD5 = value; },
+            IsCalculationRequired = () => { return CalculateMD5; }
+        };
+        HashMapping[HashConst.SHA1Hash] = new HashMappingElement
+        {
+            HashType = HashConst.SHA1Hash,
+            GetValue = () => { return HashValueSHA1; },
+            SetValue = (value) => { HashValueSHA1 = value; },
+            IsCalculationRequired = () => { return CalculateSHA1; }
+        };
+        HashMapping[HashConst.SHA256Hash] = new HashMappingElement
+        {
+            HashType = HashConst.SHA256Hash,
+            GetValue = () => { return HashValueSHA256; },
+            SetValue = (value) => { HashValueSHA256 = value; },
+            IsCalculationRequired = () => { return CalculateSHA256; }
+        };
+        HashMapping[HashConst.SHA512Hash] = new HashMappingElement
+        {
+            HashType = HashConst.SHA512Hash,
+            GetValue = () => { return HashValueSHA512; },
+            SetValue = (value) => { HashValueSHA512 = value; },
+            IsCalculationRequired = () => { return CalculateSHA512; }
+        };
+    }
+
+    public string GetHashValue(string hashType)
+    {
+        if (!HashMapping.ContainsKey(hashType))
+            throw new InvalidOperationException($@"Unknown hash type: ""{hashType}""");
+        return HashMapping[hashType].GetValue();
+    }
+
+    protected void SetHashValue(string hashType, string hashValue)
+    {
+        if (!HashMapping.ContainsKey(hashType))
+            throw new InvalidOperationException($@"Unknown hash type: ""{hashType}""");
+        HashMapping[hashType].SetValue(hashValue);
+    }
+
+    public bool IsCalculateHash(string hashType)
+    {
+        if (!HashMapping.ContainsKey(hashType))
+            throw new InvalidOperationException($@"Unknown hash type: ""{hashType}""");
+        return HashMapping[hashType].IsCalculationRequired();
+    }
+
+
+
     public ICommand AboutCommand => new Command(
         execute: () =>
         {
+            string calculatedHashes = "";
+            foreach (string hashType in HashTypes)
+            {
+                calculatedHashes += hashType + " ";
+            }
             ServiceProvider?.GetService<IG.App.IAlertService>()?.ShowAlert(
                 "About", AppNameAndVersionString + Environment.NewLine
-                + Environment.NewLine + "Calculates cryptographic hashes of files and text.");
+                + Environment.NewLine + "Calculates cryptographic hashes of files and text."
+                + Environment.NewLine + Environment.NewLine + "  Hash Types: "
+                + Environment.NewLine + calculatedHashes);
         });
 
     public ICommand HelpCommand => new Command(
@@ -182,7 +267,7 @@ public partial class MainViewModel :
     /// <param name="hashType">Typ of the hash function applied.</param>
     /// <param name="cancellationToken">Optional cancellation token that can be used to cancel the calculation.</param>
     /// <returns></returns>
-    protected async Task<string> CalculateHashAsync(string hashType, CancellationToken cancellationToken = default)
+    protected async Task<string> CalculateHashAsync(string hashType, CancellationToken cancellationToken)
     {
         if (IsTextHashing)
         {
@@ -230,6 +315,44 @@ public partial class MainViewModel :
         }
     }
 
+
+
+    public async Task<string> CalculateHashAsync(string hashType)
+    {
+        string ret = null;
+        int numHashesCAlculated = 0;
+        if (IsInputDataSufficient)
+        {
+            try
+            {
+                ++NumActiveCalculationTasks;
+                CancellationTokenSource = new CancellationTokenSource();
+                CancellationToken cancellationToken = CancellationTokenSource.Token;
+                ret = await CalculateHashAsync(hashType, cancellationToken);
+                SetHashValue(hashType, ret);
+                ++numHashesCAlculated;
+            }
+            catch (OperationCanceledException)
+            {
+                ServiceProvider?.GetService<IG.App.IAlertService>()?.ShowAlert("Warning",
+                    "Operation was cancelled.");
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                CancellationTokenSource = null;
+                --NumActiveCalculationTasks;
+                RefreshIsHashesOutdated(false);
+            }
+
+        }
+        return ret;
+    }
+
+            
     public async void VerifyHashAsync()
     {
         if (string.IsNullOrEmpty(VerifiedHashValue))
@@ -240,54 +363,20 @@ public partial class MainViewModel :
         }
         VerifiedHashValue = IsUpperCaseHashes ? VerifiedHashValue.ToUpper() : VerifiedHashValue.ToLower();
         string matchedHashType = null;
-        if (string.IsNullOrEmpty(matchedHashType))
+
+        foreach (string hashType in HashTypes)
         {
-            if (string.IsNullOrEmpty(HashValueMD5))
+            string hashValue = GetHashValue(hashType);
+            if (string.IsNullOrEmpty(hashValue))
             {
-                HashValueMD5 = await CalculateHashAsync(HashConst.MD5Hash);
-            }
-            if (HashValueMD5 == VerifiedHashValue)
-            {
-                matchedHashType = HashConst.MD5Hash;
+                hashValue = await CalculateHashAsync(hashType);
+                if (hashValue == VerifiedHashValue)
+                {
+                    matchedHashType = hashType;
+                    break;
+                }
             }
         }
-        if (string.IsNullOrEmpty(matchedHashType))
-        {
-            if (string.IsNullOrEmpty(HashValueSHA1))
-            {
-                HashValueSHA1 = await CalculateHashAsync(HashConst.SHA1Hash);
-            }
-            if (HashValueSHA1 == VerifiedHashValue)
-            {
-                matchedHashType = HashConst.SHA1Hash;
-            }
-        }
-
-        if (string.IsNullOrEmpty(matchedHashType))
-        {
-            if (string.IsNullOrEmpty(HashValueSHA256))
-            {
-                HashValueSHA256 = await CalculateHashAsync(HashConst.SHA256Hash);
-            }
-            if (HashValueSHA256 == VerifiedHashValue)
-            {
-                matchedHashType = HashConst.SHA256Hash;
-            }
-        }
-        if (string.IsNullOrEmpty(matchedHashType))
-        {
-            if (string.IsNullOrEmpty(HashValueSHA512))
-            {
-                HashValueSHA512 = await CalculateHashAsync(HashConst.SHA512Hash);
-            }
-            if (HashValueSHA512 == VerifiedHashValue)
-            {
-                matchedHashType = HashConst.SHA512Hash;
-            }
-        }
-
-
-
         if (string.IsNullOrEmpty(matchedHashType))
         {
             ServiceProvider?.GetService<IG.App.IAlertService>()?.ShowAlert(
@@ -332,61 +421,29 @@ public partial class MainViewModel :
                     CancellationTokenSource = new CancellationTokenSource();
                     CancellationToken calculationToken = CancellationTokenSource.Token;
                     ++NumActiveCalculationTasks;
-                    List<Task<string>> hashingTasks = new List<Task<string>>();
-                    Task<string> hashTaskMD5 = null;
-                    Task<string> hashTaskSHA1 = null;
-                    Task<string> hashTaskSHA256 = null;
-                    Task<string> hashTaskSHA512 = null;
-                    if (CalculateMD5 && string.IsNullOrEmpty(HashValueMD5))
-                    {
-                        hashingTasks.Add(hashTaskMD5 = CalculateHashAsync(HashConst.MD5Hash, calculationToken));
-                    }
-                    if (CalculateSHA1 && string.IsNullOrEmpty(HashValueSHA1))
-                    {
-                        hashingTasks.Add(hashTaskSHA1 = CalculateHashAsync(HashConst.SHA1Hash, calculationToken));
-                    }
-                    if (CalculateSHA256 && string.IsNullOrEmpty(HashValueSHA256))
-                    {
-                        hashingTasks.Add(hashTaskSHA256 = CalculateHashAsync(HashConst.SHA256Hash, calculationToken));
-                    }
-                    if (CalculateSHA512 && string.IsNullOrEmpty(HashValueSHA512))
-                    {
-                        hashingTasks.Add(hashTaskSHA512 = CalculateHashAsync(HashConst.SHA512Hash, calculationToken));
-                    }
+                    Dictionary<Task<string>, string> taskTypeMapping = new Dictionary<Task<string>, string>();
 
-                    var x = await Task.WhenAny(hashingTasks);
-
-                    while (hashingTasks.Count > 0)
+                    foreach (string hashType in HashTypes)
                     {
-
-                        Task<string> completedTask = await Task.WhenAny(hashingTasks);
-                        hashingTasks.Remove(completedTask);
-
-                        //Task<string>[] awaitedTasks = hashingTasks.ToArray();
-                        //int completedTaskIndex = Task.WaitAny(awaitedTasks);
-                        //Task<string> completedTask = awaitedTasks[completedTaskIndex];
-                        //hashingTasks.RemoveAt(completedTaskIndex);
-
-                        if (completedTask == hashTaskMD5)
+                        if (HashTypes.Contains(hashType))
                         {
-                            HashValueMD5 = await completedTask;
-                            ++numHashesCAlculated;
+                            HashMappingElement hashElement = HashMapping[hashType];
+                            if (hashElement.IsCalculationRequired() && string.IsNullOrEmpty(hashElement.GetValue() as string))
+                            {
+                                Task<string> hashTask = CalculateHashAsync(hashType, calculationToken);
+                                //hashingTasks.Add(hashTask);
+                                taskTypeMapping.Add(hashTask, hashType);
+                            }
                         }
-                        else if (completedTask == hashTaskSHA1)
-                        {
-                            HashValueSHA1 = await completedTask;
-                            ++numHashesCAlculated;
-                        }
-                        else if (completedTask == hashTaskSHA256)
-                        {
-                            HashValueSHA256 = await completedTask;
-                            ++numHashesCAlculated;
-                        }
-                        else if (completedTask == hashTaskSHA512)
-                        {
-                            HashValueSHA512 = await completedTask;
-                            ++numHashesCAlculated;
-                        }
+                    }
+                    while (taskTypeMapping.Count > 0)
+                    {
+                        Task<string> completedTask = await Task.WhenAny(taskTypeMapping.Keys);
+                        string hashType = taskTypeMapping[completedTask];
+                        taskTypeMapping.Remove(completedTask);
+                        SetHashValue(hashType, await completedTask);
+                        ++numHashesCAlculated;
+
                     }
                 }
                 catch(OperationCanceledException)
@@ -431,6 +488,7 @@ public partial class MainViewModel :
 
     bool IsSaveFileHashesEligible => IsSaveFileHashesToFile && IsFileHashing
         && !string.IsNullOrEmpty(FilePath) && File.Exists(FilePath);
+
 
     public virtual async void SaveHashesToFileAsync()
     {
@@ -483,14 +541,14 @@ public partial class MainViewModel :
                         + "File:   " + Path.GetFileName(FilePath) + Environment.NewLine
                         + "Length: " + fileLength + Environment.NewLine + Environment.NewLine
                         + "Hash values: " + Environment.NewLine);
-                    if (!string.IsNullOrEmpty(HashValueMD5))
-                        sb.AppendLine("  MD5:    " + Environment.NewLine + HashValueMD5);
-                    if (!string.IsNullOrEmpty(HashValueSHA1))
-                        sb.AppendLine("  SHA1:    " + Environment.NewLine + HashValueSHA1);
-                    if (!string.IsNullOrEmpty(HashValueSHA256))
-                        sb.AppendLine("  SHA256:    " + Environment.NewLine + HashValueSHA256);
-                    if (!string.IsNullOrEmpty(HashValueSHA512))
-                        sb.AppendLine("  SHA512:    " + Environment.NewLine + HashValueSHA512);
+                    foreach (string hashType in HashTypes)
+                    {
+                        string hashValue = GetHashValue(hashType);
+                        if (!string.IsNullOrEmpty(hashValue))
+                        {
+                            sb.AppendLine($"  {hashType}:    " + Environment.NewLine + hashValue);
+                        }
+                    }
                     sb.AppendLine("  ");
                     await writer.WriteAsync(sb.ToString());
                     saved = true;
