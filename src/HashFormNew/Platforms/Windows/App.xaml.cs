@@ -20,13 +20,11 @@ public partial class App : MauiWinUIApplication
     /// </summary>
     public App()
     {
-        /*
-        const int WindowWidth = 800;
-        const int WindowHeight = 700;
-        */
-        
+
+#if WINDOWS
         const int WindowWidth = 1600;
         const int WindowHeight = 1100;
+#endif
 
         // Define initial size of the main window: 
         // See e.g.: https://docs.microsoft.com/en-us/dotnet/maui/platform-integration/configure-multi-targeting

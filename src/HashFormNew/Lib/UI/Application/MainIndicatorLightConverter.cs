@@ -19,11 +19,17 @@ namespace IG.UI
         public Color GetIndicatorColor(bool? isSufficientData = null, bool? isCalculating = null, bool? isCalculated = false)
         {
             Color ret = InsufficientDataColor;
-            if (isSufficientData != null && isSufficientData.Value)
+            if (isSufficientData.HasValue)
             {
-                ret = SufficientDataColor;
+                if (!isSufficientData.Value)
+                {
+                    return InsufficientDataColor;
+                } else
+                {
+                    ret = SufficientDataColor;
+                }
             }
-            if (isCalculating != null && isCalculating.Value)
+            if (isCalculating.HasValue && isCalculating.Value)
             {
                 ret = CalculatingColor;
             }

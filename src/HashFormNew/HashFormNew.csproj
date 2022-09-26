@@ -20,15 +20,15 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 
 		<!-- Display name -->
-		<ApplicationTitle>MauiApp2</ApplicationTitle>
+		<ApplicationTitle>HashForm 2</ApplicationTitle>
 
 		<!-- App Identifier -->
-		<ApplicationId>com.companyname.mauiapp2</ApplicationId>
-		<ApplicationIdGuid>708DDDE0-C95D-4905-84B0-4237AEF98BDA</ApplicationIdGuid>
+		<ApplicationId>IGLib.HashForm</ApplicationId>
+		<ApplicationIdGuid>5723CDE6-7162-41AE-ADF2-443CF9F1AA23</ApplicationIdGuid>
 
 		<!-- Versions -->
-		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
-		<ApplicationVersion>1</ApplicationVersion>
+		<ApplicationDisplayVersion>2.0</ApplicationDisplayVersion>
+		<ApplicationVersion>2</ApplicationVersion>
 
 		
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">14.2</SupportedOSPlatformVersion>
@@ -46,16 +46,16 @@
 		<PackageId>HashForm 2</PackageId>
 		<Version>2.0.0</Version>
 		<AssemblyVersion>2.0.0</AssemblyVersion>
-		<Authors>Igor Grešovnik et al.</Authors>
-		<Company>Igor Grešovnik</Company>
+		<Authors>Igor Grešovnik</Authors>
+		<Company>IGLib - Investigative Generic Library</Company>
 		<Product>HashForm 2</Product>
 		<NeutralLanguage>en</NeutralLanguage>
 		<Description>HashForm - application for easy calculation of file and text hashes.</Description>
 		<Copyright>Copyright © Igor Grešovnik (2008 - present).</Copyright>
-		<PackageLicenseUrl></PackageLicenseUrl>
-		<PackageProjectUrl></PackageProjectUrl>
+		<PackageLicenseUrl>https://github.com/ajgorhoe/IGLib.apps.HashForm/blob/master/LICENSE.md</PackageLicenseUrl>
+		<PackageProjectUrl>https://github.com/ajgorhoe/IGLib.apps.HashForm</PackageProjectUrl>
 		<PackageIconUrl></PackageIconUrl>
-		<RepositoryUrl></RepositoryUrl>
+		<RepositoryUrl>https://github.com/ajgorhoe/IGLib.apps.HashForm.git</RepositoryUrl>
 		<RepositoryType>Git</RepositoryType>
 
 		<PackageLicenseExpression>IGLib Reference Cource Licence</PackageLicenseExpression>
@@ -65,15 +65,19 @@
 
 
 	<ItemGroup>
-		<!-- App Icon -->
-		<MauiIcon Include="Resources\appicon.svg" ForegroundFile="Resources\appiconfg.svg" Color="#512BD4" />
+		<!-- App Icon 
+		ForegroundFile="Resources\iglibicon.svg" Color="#512BD4"
+		-->
+		<MauiIcon Include="Resources\iglibicon.png" />
 
-		<!-- Splash Screen -->
-		<MauiSplashScreen Include="Resources\appiconfg.svg" Color="#512BD4" BaseSize="128,128" />
+		<!-- Splash Screen 
+		
+		Color="#512BD4" BaseSize="128,128"-->
+		<MauiSplashScreen Include="Resources\igliblogo.png"  />
 
 		<!-- Images -->
 		<MauiImage Include="Resources\Images\*" />
-		<MauiImage Update="Resources\Images\dotnet_bot.svg" BaseSize="168,208" />
+		<MauiImage Update="Resources\iglibicon.svg" BaseSize="168,208" />
 
 		<!-- Custom Fonts -->
 		<MauiFont Include="Resources\Fonts\*" />

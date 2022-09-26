@@ -153,7 +153,9 @@
                                         HorizontalOptions="End" />
                                     
                                     <!--
-                                    Remark: Eventually, the indicator light may be surrounded by a frame or border. Currently this is not used.
+                                    Remark: Eventually, the indicator light may be surrounded by a frame or border. 
+                                    Currently this is not used. In the futuer, you can uncomment the Frame and enclose
+                                    the BoxView in it.
                                     <Frame
                                         x:Name="IndicatorFrame"
                                         BorderColor="DarkGray"

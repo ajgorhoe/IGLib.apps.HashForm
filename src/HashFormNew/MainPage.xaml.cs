@@ -134,7 +134,7 @@ public partial class MainPage : ContentPage
     {
         try
         {
-            ViewModel.CalculateMissingHashesAsync();
+            await ViewModel.CalculateMissingHashesAsync();
             await Task.Delay(50);
             ViewModel.RefreshHashvaluesInUi();  // Once again trigger OnPropertyChanged events
             (this.OuterLayout as IView).InvalidateArrange();  // this should force-refrech the updated controls, but it also does not work
@@ -150,19 +150,21 @@ public partial class MainPage : ContentPage
 
     const string VirusTotalAddressAppendix = "?nocache=1";
 
+    string hashTypeVT { get; } = HashConst.SHA256Hash;
+
     async void ButtonQueryVirusTotal_Clicked(object sender, EventArgs args)
     {
+        string hashValue = null;
         string browserAddress = null;
-        string sha256Hash = null;
-        
         try
         {
-            sha256Hash = ViewModel.GetHashValue(HashConst.SHA256Hash);
-            if (string.IsNullOrEmpty(sha256Hash))
+
+            hashValue = ViewModel.GetHashValue(hashTypeVT);
+            if (string.IsNullOrEmpty(hashValue))
             {
-                sha256Hash = await ViewModel.CalculateHashAsync(HashConst.SHA256Hash);
+                hashValue = await ViewModel.CalculateHashAsync(hashTypeVT);
             }
-            browserAddress = VirusTotalBaseAddress + sha256Hash + VirusTotalAddressAppendix;
+            browserAddress = VirusTotalBaseAddress + hashValue + VirusTotalAddressAppendix;
 
             Uri uri = new Uri(browserAddress);
             await Browser.Default.OpenAsync(uri, BrowserLaunchMode.SystemPreferred);
