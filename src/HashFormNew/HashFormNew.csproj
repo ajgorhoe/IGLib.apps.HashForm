@@ -73,7 +73,7 @@
 		<!-- Splash Screen 
 		
 		Color="#512BD4" BaseSize="128,128"-->
-		<MauiSplashScreen Include="Resources\igliblogo.png"  />
+		<MauiSplashScreen Include="Resources\igliblogo.png" />
 
 		<!-- Images -->
 		<MauiImage Include="Resources\Images\*" />
@@ -107,6 +107,10 @@
 	  <MauiXaml Update="Resources\StylesOriginal.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Lib\Converters\" />
 	</ItemGroup>
 
 </Project>

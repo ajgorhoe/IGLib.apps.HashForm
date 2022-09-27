@@ -12,7 +12,9 @@
              >
 
     <ContentPage.Resources>
-        <IGUI:InvertBoolConverter x:Key="InverseBoolConverter" />
+        <IGUI:BoolInvertConverter x:Key="BoolInvertConverter" />
+        <IGUI:BoolAndMultiConverter x:Key="BoolAndMultiConverter" />
+        <IGUI:BoolOrMultiConverter x:Key="BoolOrMultiConverter" />
         <IGUI:MainIndicatorLightMultiConverter x:Key="MainIndicatorLightMultiConverter" />
     </ContentPage.Resources>
     
@@ -141,14 +143,13 @@
                                     
                                     <!--
                                         REMARK: with CalculateButton, the IsVisible binding below behaves correctly, but IsEnabled does not.
-                                        IsEnabled="{Binding IsCalculating, Converter={StaticResource InverseBoolConverter} }"
-                                        IsVisible="{Binding IsCalculating, Converter={StaticResource InverseBoolConverter} }"
+                                        IsEnabled="{Binding IsCalculating, Converter={StaticResource BoolInvertConverter} }"
                                     -->
                                     <Button x:Name="CalculateButton" Text="Calculate Hashes" 
                                         Clicked="ButtonCalculate_Clicked"
                                         HorizontalOptions="Start" />
                                     <Button x:Name="ClearButton" Text="Clear Values" 
-                                        IsEnabled="{Binding IsCalculating, Converter={StaticResource InverseBoolConverter} }"
+                                        IsEnabled="{Binding IsCalculating, Converter={StaticResource BoolInvertConverter} }"
                                         Clicked="ButtonClear_Clicked"
                                         HorizontalOptions="End" />
                                     
@@ -200,15 +201,40 @@
                                     x:Name="CalculateButtonsRightContainer"
                                     Margin="0" Padding="0"
                                     HorizontalOptions="End" Spacing="4"  >
-                                    
-                                    
+
+
                                     <Button Text="Query VirusTotal"
-                                         IsVisible="{Binding IsInputDataSufficient}"
                                          Clicked="ButtonQueryVirusTotal_Clicked"
-                                         HorizontalOptions="End" />
-                                    
+                                         HorizontalOptions="End" >
+                                        <Button.IsEnabled>
+                                            <Binding Mode="OneWay" >
+                                                <Binding.Converter >
+                                                    <IGUI:BoolInvertConverter />
+                                                </Binding.Converter>
+                                                <Binding.Path>IsCalculating</Binding.Path>
+                                            </Binding>
+                                        </Button.IsEnabled>
+                                        <Button.IsVisible>
+                                            <MultiBinding Mode="OneWay" >
+                                                <MultiBinding.Converter>
+                                                    <IGUI:BoolAndMultiConverter />
+                                                </MultiBinding.Converter>
+                                                <Binding Path="IsInputDataSufficient" />
+                                                <Binding Path="IsFileHashing" />
+                                                <!--
+                                                 <Binding Path="IsCalculating"
+                                                    Converter="{StaticResource BoolInvertConverter}" />
+                                               -->
+                                            </MultiBinding>
+                                        </Button.IsVisible>
+
+                                    </Button>
+
                                     <!--
+                                         IsEnabled ="{Binding Path=IsCalculating, Converter={StaticResource BoolInvertConverter}}"
+                                         IsVisible="{Binding IsInputDataSufficient}"
                                     -->
+                                    
                                     <Button 
                                         x:Name="CancelButton" Text="Cancel" 
                                         Command="{Binding CancelCurrentOpperationCommand}"
@@ -251,10 +277,17 @@
                                     <HorizontalStackLayout 
                             x:Name="HashValuesInfoContainer"
                             Spacing="4" HorizontalOptions="Fill" >
-                                        <Label Text="IsCalculating: " HorizontalOptions="Start" VerticalOptions="Center"></Label>
-                                        <Label Text="{Binding IsCalculating}" HorizontalOptions="Start" VerticalOptions="Center"></Label>
                                         <Label Text="NumCalculaions: " HorizontalOptions="Start" VerticalOptions="Center"></Label>
                                         <Label Text="{Binding NumActiveCalculationTasks}" HorizontalOptions="Start" VerticalOptions="Center"></Label>
+                                        
+                                        <Label Text="IsCalculating: "  />
+                                        <Label Text="{Binding IsCalculating}" TextColor="BlueViolet" />
+                                        <Label Text="IsHashesCalculated: "  />
+                                        <Label Text="{Binding IsHashesCalculated}" TextColor="LimeGreen" />
+                                        <Label Text="IsInputDataSufficient: " />
+                                        <Label Text="{Binding IsInputDataSufficient}" TextColor="Red" />
+
+
                                         <Label Text="MD5: " HorizontalOptions="Start" VerticalOptions="Center"></Label>
                                         <Label Text="{Binding HashValueMD5}" HorizontalOptions="Start" VerticalOptions="Center"></Label>
                                         <!--
@@ -263,9 +296,21 @@
                                         -->
                                     </HorizontalStackLayout>
                                     <HorizontalStackLayout 
+                                        x:Name="CalculationStateInfoContainer"
+                                        Spacing="8">
+                                        <Label Text="IsInputDataSufficient: "/>
+                                        <Label Text="{Binding IsInputDataSufficient}" />
+                                        <Label Text="IsHashesOutdated: "/>
+                                        <Label Text="{Binding IsHashesOutdated}" />
+                                        <Label Text="IsCalculationButtonsEnabled: "/>
+                                        <Label Text="{Binding IsCalculationButtonsEnabled}" />
+
+                                    </HorizontalStackLayout>
+
+                                    <HorizontalStackLayout 
                             x:Name="DragDropInfoContainer"
                             Spacing="4" HorizontalOptions="Fill" >
-                                        <Label Text="Entry counter: " HorizontalOptions="Start" ></Label>
+                                        <Label Text="Drag and Drop:  Entry counter: " HorizontalOptions="Start" ></Label>
                                         <Label Text="{Binding NumEntries}"  HorizontalOptions="Start"/>
                                         <Label Text="Dropped value: " HorizontalOptions="Start" ></Label>
                                         <Label Text="{Binding DroppedTextValue}"  HorizontalOptions="Start"/>
@@ -283,18 +328,6 @@
                                         <Label Text="{Binding IsFileHashing}" />
                                         <Label Text="Text hashing: "/>
                                         <Label Text="{Binding IsTextHashing}" />
-                                    </HorizontalStackLayout>
-                                    <HorizontalStackLayout 
-                            x:Name="CalculationStateInfoContainer"
-                            Spacing="8">
-                                        <Label Text="IsInputDataSufficient: "/>
-                                        <Label Text="{Binding IsInputDataSufficient}" />
-                                        <Label Text="IsHashesOutdated: "/>
-                                        <Label Text="{Binding IsHashesOutdated}" />
-                                        <Label Text="IsCalculationButtonsEnabled: "/>
-                                        <Label Text="{Binding IsCalculationButtonsEnabled}" />
-                                        <Label Text="IsCalculating: "/>
-                                        <Label Text="{Binding IsCalculating} "/>
                                     </HorizontalStackLayout>
                                 </VerticalStackLayout>
 
@@ -324,7 +357,7 @@
                                         Style="{StaticResource EntryResultStyle}" />
                                 </Border>
                                 <Button 
-                                    x:Name="Md5CopyButton" Command="{Binding CopyHashToClipboardCommand}" CommandParameter="{Binding HashValueMD5}"
+                                    x:Name="Md5CopyButton" Command="{Binding CopyHashToClipboardCommand}" CommandParameter="{Binding HashTypeMD5}"
                                     Grid.Row="0" Grid.Column="3" Text="Copy MD5" HorizontalOptions="Fill" VerticalOptions="Fill" 
                                     Padding="10, 0, 0, 0" />
 
@@ -344,7 +377,7 @@
                                         Style="{StaticResource EntryResultStyle}" />
                                 </Border>
                                 <Button 
-                                    x:Name="Sha1CopyButton" Command="{Binding CopyHashToClipboardCommand}" CommandParameter="{Binding HashValueSHA1}"
+                                    x:Name="Sha1CopyButton" Command="{Binding CopyHashToClipboardCommand}" CommandParameter="{Binding HashTypeSHA1}"
                                     Grid.Row="1" Grid.Column="3" Text="Copy SHA-1" HorizontalOptions="Fill" VerticalOptions="Fill" Padding="10, 0, 0, 0" 
                                     />
                                 <Label 
@@ -362,7 +395,7 @@
                                         Style="{StaticResource EntryResultStyle}" />
                                 </Border>
                                 <Button 
-                                    x:Name="Sha256CopyBuyyon"  Command="{Binding CopyHashToClipboardCommand}" CommandParameter="{Binding HashValueSHA256}"
+                                    x:Name="Sha256CopyButton"  Command="{Binding CopyHashToClipboardCommand}" CommandParameter="{Binding HashTypeSHA256}"
                                     Grid.Row="2" Grid.Column="3" Text="Copy SHA-256" 
                                     HorizontalOptions="Fill" VerticalOptions="Fill" Padding="10, 0, 0, 0" />
                                 <Label 
@@ -380,7 +413,7 @@
                                         Style="{StaticResource EntryResultStyle}" />
                                 </Border>
                                 <Button 
-                                    x:Name="Sha512CopyButton"  Command="{Binding CopyHashToClipboardCommand}" CommandParameter="{Binding HashValueSHA512}"
+                                    x:Name="Sha512CopyButton"  Command="{Binding CopyHashToClipboardCommand}" CommandParameter="{Binding HashTypeSHA512}"
                                     Grid.Row="3" Grid.Column="3" Text="Copy SHA-512" HorizontalOptions="Fill" VerticalOptions="Fill" 
                                     Padding="10, 0, 0, 0" />
 

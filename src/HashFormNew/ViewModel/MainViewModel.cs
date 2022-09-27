@@ -246,14 +246,15 @@ public partial class MainViewModel :
         });
 
     public ICommand CopyHashToClipboardCommand => new Command<string>(
-            execute: (string param) =>
+            execute: (string hashType) =>
             {
-                ServiceProvider?.GetService<IG.App.IClipboardService>()?.SetText(param);
+                string hashValue = GetHashValue(hashType);
+                ServiceProvider?.GetService<IG.App.IClipboardService>()?.SetText(hashValue);
 
                 ServiceProvider?.GetService<IG.App.IAlertService>()?.ShowAlert(
                         "Hash Copied",
-                        "Hash copied to clipboard: "
-                        + Environment.NewLine + param, "OK");
+                        $"Hash {hashType} copied to clipboard: "
+                        + Environment.NewLine + hashValue, "OK");
 
                 //Task.Run(async () => { 
 
@@ -307,10 +308,17 @@ public partial class MainViewModel :
     /// <summary>Initiates a calculation task: increments the number of active calculation tasks (possibly nested or parallel),
     /// provisions cancellation token source for the new task, and possibly stores the cancellation token in 
     /// <see cref="ClassCancellationSource"/> such that the calculation task(s) can be cancelled via this source.
-    /// <para>
-    /// The pair <see cref="InititeCalculationTask(CancellationTokenSource)"/> / <see cref="ConcludeCalcullationTask(CancellationTokenSource)"/>
-    /// provides a way to standardize initiation and conclusion of tasks triggered via UI or automatically.
-    /// </para></summary>
+    /// <para>See also remarks.</para></summary>
+    /// <remarks>
+    /// The pair <see cref="InititeCalculationTask(CancellationTokenSource)"/> / <see cref="FinalizeCalcullationTask(CancellationTokenSource)"/>
+    /// provides a way to standardize initiation and finalization of calculation tasks triggered externally or internally. 
+    /// this in particular refers to handling the class level <see cref="ClassCancellationSource"/> that is used to
+    /// cancel the current operations (externally or internally), to count the number of possibly nested calculation tasks
+    /// currently executing (<see cref="NumActiveCalculationTasks"/>), update information on whether calculation is 
+    /// currently being performed (<see cref="IsCalculating"/>), and to update the state after each calculation task is 
+    /// completed (i.e., <see cref="IsHashesOutdated"/>). This is the single place where handling of these things is 
+    /// modified.
+    /// </remarks>
     /// <param name="externalCancellationSource">The eventual external cancellation token source provided to the task
     /// by its caller, indicating that the current task is nested into (subordinate to) a broader task package.</param>
     /// <returns>The actual cancellation token source that can be used by the task (which can be either the 
@@ -341,14 +349,24 @@ public partial class MainViewModel :
     /// <summary>Finalizes common aspects of the current calculation task, i.e., decrements the number of active
     /// calculation tasks (<see cref="NumActiveCalculationTasks"/>), and cleans up the class' cancellatio ntoken 
     /// source.
-    /// <para>
-    /// The pair <see cref="InititeCalculationTask(CancellationTokenSource)"/> / <see cref="ConcludeCalcullationTask(CancellationTokenSource)"/>
-    /// provides a way to standardize initiation and conclusion of tasks triggered via UI or automatically.
-    /// </para></summary>
+    /// <para>See also remarks for <see cref="InitHashMapping"/>.</para></summary>
     /// <param name="externalCancellationSource">The eventual external cancellation token source provided to the task
-    /// by its caller, indicating that the current task is nested into (subordinate to) a broader task package.</param>
-    protected virtual void ConcludeCalcullationTask(CancellationTokenSource externalCancellationSource)
+    /// by its caller, indicating that the current task is nested into (subordinate to) a broader task package.
+    /// <para>For tasks for which external <see cref="CancellationTokenSource"/> is not provided, this paremeter should
+    /// be set to null.</para></param>
+    /// <param name="actualCancellationSourceUsed">Actual <see cref="CancellationTokenSource"/> that was used by the 
+    /// task. If this is set to null but cancellation token source was used then the returned informaition will not
+    /// necessarily be correct.</param>
+    /// <returns>Value indicating whether the task that is being finalized was cancelled. This information is correct
+    /// only when the parameter <paramref name="actualCancellationSourceUsed"/> is provided.</returns>
+    protected virtual bool FinalizeCalcullationTask(CancellationTokenSource externalCancellationSource,
+        CancellationTokenSource actualCancellationSourceUsed)
     {
+        bool wasCancelled = false;
+        if (actualCancellationSourceUsed!=null)
+        {
+            wasCancelled = actualCancellationSourceUsed.IsCancellationRequested;
+        }
         --NumActiveCalculationTasks;
         if (NumActiveCalculationTasks <= 0)
         {
@@ -359,9 +377,40 @@ public partial class MainViewModel :
                 classCancellationSource.Dispose();
             }
         }
-        RefreshIsHashesOutdated(false);
+        RefreshIsHashesOutdated();
+        return wasCancelled;
     }
 
+    /// <summary>Triggers calculation of missing hash values IF the <see cref="CalculateHashesAutomatically"/> is set to
+    /// true and no other hash calculation is currently going on. It calls <see cref="RefreshIsHashesOutdated"/>
+    /// before triggering calculation.
+    /// <para>This method will not block the calling method, which will resume almost immediately after the call.</para>
+    /// <para>The method is used to trigger calculation of missing hash values in asynchronous methods and property
+    /// setters that cause state changes that make the calculated hash values insufficient (also when values are cleared
+    /// because they bcome invalid).</para>
+    /// <para>In async methods, call "<see cref="RefreshIsHashesOutdated"/>; await <see cref="CalculateMissingHashesAsync()"/>" instead.</para></summary>
+    public void RefreshIsHashesOutdatedAndCalculateMissingHashesIfAutomatic()
+    {
+        if (RefreshIsHashesOutdated())
+        {
+            if (CalculateHashesAutomatically && !IsCalculating)
+            {
+                var exec = async () =>
+                {
+                    try
+                    {
+                        await CalculateMissingHashesAsync();
+                    }
+                    catch { }
+                    finally
+                    {
+                        // isOutdated = GetHashesOutdated();
+                    }
+                };
+                exec();
+            }
+        }
+    }
 
     /// <summary>Calculate hash function of specific type on the current input from this class.</summary>
     /// <param name="hashType">Typ of the hash function applied.</param>
@@ -373,13 +422,11 @@ public partial class MainViewModel :
     {
         bool exceptionOccurred = false;
         string ret = null;
-        CancellationTokenSource cancellationSource = InititeCalculationTask(externalCancellationSource);
-        CancellationToken cancellationToken = cancellationSource.Token;
+        CancellationTokenSource cancellationSource = null;
         try
         {
-            // ++NumActiveCalculationTasks;
-
-
+            cancellationSource = InititeCalculationTask(externalCancellationSource);
+            CancellationToken cancellationToken = cancellationSource.Token;
             Func<Task<string>> hashTask = null;
             // Define the calculation operation based on file / text input.
             if (IsTextHashing)
@@ -425,6 +472,7 @@ public partial class MainViewModel :
                 throw new InvalidOperationException("Neither file input nor text input is active.");
             }
             ret = await Task.Run(hashTask);
+            SetHashValue(hashType, ret);
         }
         catch (OperationCanceledException ex)
         {
@@ -442,14 +490,7 @@ public partial class MainViewModel :
         }
         finally
         {
-            bool wasCancelled = cancellationSource.IsCancellationRequested;
-            ConcludeCalcullationTask(cancellationSource);
-            if (!wasCancelled)
-            {
-                SetHashValue(hashType, ret);
-            }
-
-            RefreshIsHashesOutdated(false);
+            bool wasCancelled = FinalizeCalcullationTask(externalCancellationSource, cancellationSource);
             if (externalCancellationSource == null && !exceptionOccurred && cancellationSource.IsCancellationRequested)
             {
                 ServiceProvider?.GetService<IG.App.IAlertService>()?.ShowAlert("Warning",
@@ -462,9 +503,16 @@ public partial class MainViewModel :
     /// <summary>For the specified hash value, verifies whether any of the hassh values of the current content
     /// corresponds to that value, and returns true if yes. It also launches an alert informing the user of the
     /// matchng hash.</summary>
-    /// <param name="comparedHashValue"></param>
-    /// <returns></returns>
-    public async Task<string> VerifyHashAsync(string comparedHashValue = null)
+    /// <param name="comparedHashValue">The provided hash values that should be verified against supported hash functions.
+    /// If null then this parameter si set to the currentn value of <see cref="VerifiedHashValue"/> property.</param>
+    /// <param name="externalCancellationSource">The eventual external cancellation token source provided to the task
+    /// by its caller, indicating that the current task is nested into (subordinate to) a broader task package.</param>
+    /// <param name="canceel soon as match is obtained. Default is false.</param>
+    /// <returns>String identifying the type of the hash function that correspond to the verified hash value, or null
+    /// when no corresponding hash type could be identified among the supported hash types (this can also happen when
+    /// the operation was cancelled prematurely, or error occurred, or there is insufficient data for hash calculation).</returns>
+    public async Task<string> VerifyHashAsync(string comparedHashValue = null, 
+        CancellationTokenSource externalCancellationSource = null, bool canceelWhenMatchObtained = false)
     {
         if (string.IsNullOrEmpty(comparedHashValue))
         {
@@ -475,7 +523,7 @@ public partial class MainViewModel :
         {
             comparedHashValue = IsUpperCaseHashes ? comparedHashValue.ToUpper() : comparedHashValue.ToLower();
         }
-        VerifiedHashValue = comparedHashValue;
+        VerifiedHashValue = comparedHashValue;  // store (back) to class-level property
         if (string.IsNullOrEmpty(comparedHashValue))
         {
             ServiceProvider?.GetService<IG.App.IAlertService>()?.ShowAlert(
@@ -483,6 +531,7 @@ public partial class MainViewModel :
             return null;
         }
         string matchedHashType = null;
+        bool notYetReportedAMatch = true;
         // Check whether we have a matching hash among already calculated hashes:
         foreach (string hashType in HashTypesCalculated)
         {
@@ -495,35 +544,48 @@ public partial class MainViewModel :
         }
         if (matchedHashType == null)
         {
-            CancellationTokenSource cancellationSource = new CancellationTokenSource();
-            if (ClassCancellationSource == null)
-                ClassCancellationSource = cancellationSource;
+            CancellationTokenSource cancellationSource = null;
             try
             {
-                //StringBuilder sb = new StringBuilder();
+                cancellationSource = InititeCalculationTask(externalCancellationSource: null);
+                //StringBuilder sb = new StringBuilder();  // <DebugInfo> 
                 // Matched value not found among already calculated hash values; we need to calculate
                 // the other hashes and compare it to the value:
                 await CalculateMissingHashesAsync(cancellationSource, HashTypesNotCalculated, 
                     (hashType, hashValue) =>
                     {
-                        //sb.AppendLine($"{hashType}: {hashValue}");
+                        //sb.AppendLine($"{hashType}: {hashValue}");  // <DebugInfo> 
                         // Callback that is executed every time a new hash value is calculated:
                         if (comparedHashValue == hashValue)
                         {
-                            //sb.AppendLine($"  Matching hash: {hashType}");
+                            //sb.AppendLine($"  Matching hash: {hashType}");  // <DebugInfo> 
                             // We have found the hash type for which hash value matches the value to be checked:
                             matchedHashType = hashType;
-                            // We don't need to continue calculation, as we have already found the matching hash type:
-                            cancellationSource.Cancel();
+                            {
+                                notYetReportedAMatch = false;
+                                ServiceProvider?.GetService<IG.App.IAlertService>()?.ShowAlert(
+                                    "Info", "The specified hash value: " + Environment.NewLine
+                                    + $"  {comparedHashValue}" + Environment.NewLine
+                                    + $"corresponds to the {matchedHashType} hash of the specified {(IsFileHashing ? "file" : "text")}.");
+                            }
+                            if (canceelWhenMatchObtained)
+                            {
+                                // If we don't need to continue calculation for other hashes after we the matching hash type was found:
+                                cancellationSource.Cancel();
+                            }
                         }
                     });
 
-                //ServiceProvider?.GetService<IG.App.IAlertService>()?.ShowAlert("Info",
-                //$"Calculation Calculated hashes matching:" + Environment.NewLine
-                //    + sb.ToString());
+                //ServiceProvider?.GetService<IG.App.IAlertService>()?.ShowAlert("Info",  // <DebugInfo> 
+                //$"Calculation Calculated hashes matching:" + Environment.NewLine  // <DebugInfo> 
+                //      + sb.ToString());  // <DebugInfo> 
             }
             catch 
             { }
+            finally
+            {
+                bool wasCancelled = FinalizeCalcullationTask(externalCancellationSource, cancellationSource);
+            }
         }
         if (string.IsNullOrEmpty(matchedHashType))
         {
@@ -534,15 +596,20 @@ public partial class MainViewModel :
         }
         else
         {
-            ServiceProvider?.GetService<IG.App.IAlertService>()?.ShowAlert(
-                "Info", "The specified hash value: " + Environment.NewLine
-                + $"  {comparedHashValue}" + Environment.NewLine
-                + $"corresponds to the {matchedHashType} hash of the specified {(IsFileHashing ? "file" : "text")}.");
-
+            if (notYetReportedAMatch)
+            {
+                ServiceProvider?.GetService<IG.App.IAlertService>()?.ShowAlert(
+                    "Info", "The specified hash value: " + Environment.NewLine
+                    + $"  {comparedHashValue}" + Environment.NewLine
+                    + $"corresponds to the {matchedHashType} hash of the specified {(IsFileHashing ? "file" : "text")}.");
+            }
         }
         return matchedHashType;
     }
 
+
+    /// <summary>Just calls <see cref="CalculateMissingHashesAsync(CancellationTokenSource, IList{string}, Action{string, string})"/>.</summary>
+    protected async Task CalculateMissingHashesAsync() { await CalculateMissingHashesAsync(null); }
 
     /// <summary>Calculates the eventual missing hash values according to the parameters of the current ViewModel.</summary>
     /// <param name="externalCancellationSource">The eventual external cancellation token source provided to the task
@@ -553,7 +620,7 @@ public partial class MainViewModel :
     /// <param name="callback">Optional. When specified, this delegate is invoked for each hash value calculated.
     /// Hash type and the calculated hash value are passed to the delegate.</param>
     /// <exception cref="InvalidOperationException"></exception>
-    public async Task CalculateMissingHashesAsync(CancellationTokenSource externalCancellationSource = null,
+    public virtual async Task CalculateMissingHashesAsync(CancellationTokenSource externalCancellationSource = null,
         IList<string> consideredHashTypes = null, Action<string, string> callback = null)
     {
 
@@ -586,9 +653,10 @@ public partial class MainViewModel :
         }
         int numHashesCAlculated = 0;
         bool exceptionOccurred = false;
-        CancellationTokenSource cancellationSource = InititeCalculationTask(externalCancellationSource);
+        CancellationTokenSource cancellationSource = null;
         try
         {
+            cancellationSource = InititeCalculationTask(externalCancellationSource);
             Dictionary<Task<string>, string> taskTypeMapping = new Dictionary<Task<string>, string>();
             foreach (string hashType in consideredHashTypes)
             {
@@ -625,9 +693,7 @@ public partial class MainViewModel :
         }
         finally
         {
-            bool wasCancelled = cancellationSource.IsCancellationRequested;
-            ConcludeCalcullationTask(cancellationSource);
-
+            bool wasCancelled = FinalizeCalcullationTask(externalCancellationSource, cancellationSource);
             if (externalCancellationSource == null && !exceptionOccurred && wasCancelled)
             {
                 ServiceProvider?.GetService<IG.App.IAlertService>()?.ShowAlert("Warning",
@@ -836,7 +902,7 @@ public partial class MainViewModel :
                     TextToHash = GetFilePreview(_filePath);
                 }
                 RefreshInputDataSufficient();
-                RefreshIsHashesOutdated();
+                RefreshIsHashesOutdatedAndCalculateMissingHashesIfAutomatic();
                 OnPropertyChanged(nameof(IsHashesCalculated));
             }
         }
@@ -959,7 +1025,7 @@ public partial class MainViewModel :
             {
                 _calculateHashesAutomatically = value;
                 OnPropertyChanged(nameof(CalculateHashesAutomatically));
-                RefreshIsHashesOutdated();  // to eventually trigger automatic calculation of hashes
+                RefreshIsHashesOutdatedAndCalculateMissingHashesIfAutomatic();
             }
         }
     }
@@ -1013,7 +1079,7 @@ public partial class MainViewModel :
             {
                 _calculateMD5 = value;
                 OnPropertyChanged(nameof(CalculateMD5));
-                RefreshIsHashesOutdated();
+                RefreshIsHashesOutdatedAndCalculateMissingHashesIfAutomatic();
             }
         }
     }
@@ -1031,7 +1097,7 @@ public partial class MainViewModel :
             {
                 _calculateSHA1 = value;
                 OnPropertyChanged(nameof(CalculateSHA1));
-                RefreshIsHashesOutdated();
+                RefreshIsHashesOutdatedAndCalculateMissingHashesIfAutomatic();
             }
         }
     }
@@ -1047,7 +1113,7 @@ public partial class MainViewModel :
             {
                 _calculateSHA256 = value;
                 OnPropertyChanged(nameof(CalculateSHA256));
-                RefreshIsHashesOutdated();
+                RefreshIsHashesOutdatedAndCalculateMissingHashesIfAutomatic();
             }
         }
     }
@@ -1063,7 +1129,7 @@ public partial class MainViewModel :
             {
                 _calculateSHA512 = value;
                 OnPropertyChanged(nameof(CalculateSHA512));
-                RefreshIsHashesOutdated();
+                RefreshIsHashesOutdatedAndCalculateMissingHashesIfAutomatic();
             }
         }
     }
@@ -1071,33 +1137,14 @@ public partial class MainViewModel :
 
 
 
+    // <param name="performAutomaticCalculations">If true then automatic calculation of missing hash values is performed.
 
     /// <summary>Recalculates the <see cref="IsHashesOutdated"/> property, and performs any automatic 
     /// tasks dependent on this property.</summary>
-    /// <param name="performAutomaticCalculations">If false then automatic calculations ae not performed.
     /// Default is true.</param>
-    public bool RefreshIsHashesOutdated(bool performAutomaticCalculations = true)
+    public bool RefreshIsHashesOutdated(/* bool performAutomaticCalculations = true */)
     {
         bool isOutdated = GetHashesOutdated();  // this will also call OnPropertyChanged(nameof(IsHashesOutdated));
-        if (isOutdated)
-        {
-            if (CalculateHashesAutomatically && performAutomaticCalculations && !IsCalculating)
-            {
-                var exec = async () =>
-                {
-                    try
-                    {
-                        await CalculateMissingHashesAsync();
-                    }
-                    catch { }
-                    finally
-                    {
-                        isOutdated = GetHashesOutdated();
-                    }
-                };
-                exec();
-            }
-        }
         return isOutdated;
     }
 
@@ -1214,6 +1261,8 @@ public partial class MainViewModel :
         OnPropertyChanged(nameof(IsCalculating));
     }
 
+    public string HashTypeMD5 => HashConst.MD5Hash;
+
     private string _hashValueMD5 = null;
 
     public string HashValueMD5
@@ -1232,6 +1281,8 @@ public partial class MainViewModel :
             OnPropertyChanged(nameof(HashValueMD5));
         }
     }
+
+    public string HashTypeSHA1 => HashConst.SHA1Hash;
 
     private string _hashValueSHA1 = null;
 
@@ -1253,6 +1304,8 @@ public partial class MainViewModel :
     }
 
 
+    public string HashTypeSHA256 => HashConst.SHA256Hash;
+
     private string _hashValueSHA256 = null;
 
     public string HashValueSHA256
@@ -1271,6 +1324,8 @@ public partial class MainViewModel :
             OnPropertyChanged(nameof(HashValueSHA256));
         }
     }
+
+    public string HashTypeSHA512 => HashConst.SHA512Hash;
 
     private string _hashValueSHA512 = null;
 
@@ -1318,7 +1373,7 @@ public partial class MainViewModel :
         HashValueSHA1 = null;
         HashValueSHA256 = null;
         HashValueSHA512 = null;
-        RefreshIsHashesOutdated();
+        RefreshIsHashesOutdatedAndCalculateMissingHashesIfAutomatic();
     }
 
     public bool RefreshInputDataSufficient()
@@ -1347,7 +1402,7 @@ public partial class MainViewModel :
         {
             _isInputDataSufficient = isSufficient;
             OnPropertyChanged(nameof(IsInputDataSufficient));
-            RefreshIsHashesOutdated();
+            RefreshIsHashesOutdatedAndCalculateMissingHashesIfAutomatic();
         }
         return isSufficient;
     }
@@ -1389,7 +1444,7 @@ public partial class MainViewModel :
                     LastTextToHashWhenTextHashing = _textToHash;
                 }
                 RefreshInputDataSufficient();
-                RefreshIsHashesOutdated();
+                RefreshIsHashesOutdatedAndCalculateMissingHashesIfAutomatic();
             }
         }
     }

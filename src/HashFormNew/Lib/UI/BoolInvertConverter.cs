@@ -7,7 +7,8 @@ using System.Threading.Tasks;
 
 namespace IG.UI
 {
-    public class InvertBoolConverter : IValueConverter
+    /// <summary>Takes a boolean values and returns true it is false, false if it is true.</summary>
+    public class BoolInvertConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
