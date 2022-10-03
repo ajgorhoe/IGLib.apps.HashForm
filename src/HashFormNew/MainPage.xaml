@@ -339,6 +339,61 @@
 
                             </Border>
 
+
+
+                            <FlexLayout BackgroundColor="Orange" 
+                                VerticalOptions="Start"
+                                HorizontalOptions="Fill"
+                                FlexLayout.AlignSelf="Auto"
+                                AlignItems="Center" 
+                                Wrap="Wrap"
+                                AlignContent="Stretch"
+                                >
+
+
+                                <!--
+
+                                <Label  x:Name="Md5Label1" Grid.Row="0" Grid.Column="0" 
+                                    Text="MD5:" 
+                                    HorizontalOptions="Start" VerticalOptions="Center" >
+                                    <Label.GestureRecognizers>
+                                        <DragGestureRecognizer DragStarting="DragStarting_GetText" CanDrag="True"  />
+                                    </Label.GestureRecognizers>
+                                </Label>
+                                <CheckBox  x:Name="Md5Checkbox1" Grid.Row="0" Grid.Column="1" 
+                                    IsChecked="{Binding CalculateMD5}" 
+                                    HorizontalOptions="Start" VerticalOptions="End" />
+                                <Border 
+                                    x:Name ="Md5Border1" Grid.Row="0" Grid.Column="2"
+                                    Style="{StaticResource ControlBorderStyle}"
+                                    >
+                                    <Entry 
+                                        x:Name="Md5ValueControl1" Text="{Binding HashValueMD5}" IsReadOnly="True"
+                                        HorizontalOptions="Fill" VerticalOptions="Center"
+                                        MinimumWidthRequest="200"
+                                        Style="{StaticResource EntryResultStyle}" />
+                                </Border>
+                                <Button 
+                                    x:Name="Md5CopyButton1" Command="{Binding CopyHashToClipboardCommand}" CommandParameter="{Binding HashTypeMD5}"
+                                    Grid.Row="0" Grid.Column="3" Text="Copy MD5" HorizontalOptions="Fill" VerticalOptions="Fill" 
+                                    Padding="10, 0, 0, 0" />
+
+
+
+                                
+                                <Label BackgroundColor="AliceBlue" FlexLayout.Grow="1" FlexLayout.Basis="20%">Flex 1</Label>
+                                <Label BackgroundColor="BlanchedAlmond" FlexLayout.Grow="1" FlexLayout.Basis="20%">Flex 2</Label>
+                                <Label BackgroundColor="CornflowerBlue" FlexLayout.Grow="1" FlexLayout.Basis="20%">Flex 3</Label>
+                                <Label BackgroundColor="DeepSkyBlue" FlexLayout.Grow="1" FlexLayout.Basis="20%">Flex 4</Label>
+                                <Label BackgroundColor="ForestGreen" FlexLayout.Grow="1" FlexLayout.Basis="20%">Flex 5</Label>
+                                <Label BackgroundColor="Gold" FlexLayout.Grow="1" FlexLayout.Basis="20%">Flex 6</Label>
+                                <Label BackgroundColor="HotPink" FlexLayout.Grow="1" FlexLayout.Basis="20%">Flex 7</Label>
+                                <Label BackgroundColor="Ivory" FlexLayout.Grow="1" FlexLayout.Basis="20%">Flex 8</Label>
+                                <Label BackgroundColor="Khaki" FlexLayout.Grow="1" FlexLayout.Basis="20%">Flex 9</Label>
+                                -->
+                            </FlexLayout>
+
+
                             <Grid 
                                 x:Name="HashValuesContainer"
                                 HorizontalOptions="Fill" 
@@ -352,6 +407,9 @@
                                 <HorizontalStackLayout>
                                 </HorizontalStackLayout>
                                 -->
+
+
+
 
                                 <Label  x:Name="Md5Label" Grid.Row="0" Grid.Column="0" 
                                     Text="MD5:" 
@@ -401,6 +459,9 @@
                                     Grid.Row="1" Grid.Column="3" Text="Copy SHA-1" HorizontalOptions="Fill" VerticalOptions="Fill" Padding="10, 0, 0, 0" 
                                     />
                                 
+                                
+
+
                                 <Label 
                                     x:Name="Sha256Label" Grid.Row="2" Grid.Column="0" Text="SHA-256: " 
                                     HorizontalOptions="Start" VerticalOptions="Center" >
