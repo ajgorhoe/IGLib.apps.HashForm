@@ -9,7 +9,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Windows.Input;
 using System.Reflection;
-using Windows.UI.WebUI;
+//using Windows.UI.WebUI;
 using System.Threading;
 using System.Reflection.Metadata.Ecma335;
 using System.Linq.Expressions;
@@ -310,7 +310,7 @@ public partial class MainViewModel :
     /// <see cref="ClassCancellationSource"/> such that the calculation task(s) can be cancelled via this source.
     /// <para>See also remarks.</para></summary>
     /// <remarks>
-    /// The pair <see cref="InititeCalculationTask(CancellationTokenSource)"/> / <see cref="FinalizeCalcullationTask(CancellationTokenSource)"/>
+    /// The pair <see cref="InititeCalculationTask(CancellationTokenSource)"/> / <see cref="FinalizeCalcullationTask(CancellationTokenSource, CancellationTokenSource)(CancellationTokenSource)"/>
     /// provides a way to standardize initiation and finalization of calculation tasks triggered externally or internally. 
     /// this in particular refers to handling the class level <see cref="ClassCancellationSource"/> that is used to
     /// cancel the current operations (externally or internally), to count the number of possibly nested calculation tasks
@@ -414,8 +414,7 @@ public partial class MainViewModel :
 
     /// <summary>Calculate hash function of specific type on the current input from this class.</summary>
     /// <param name="hashType">Typ of the hash function applied.</param>
-    /// <param name="cancellationToken">Optional cancellation token that can be used to cancel the calculation.</param>
-    /// <param name="fallback"
+    /// <param name="externalCancellationSource">Optional cancellation token source that can be used to cancel the calculation. It can be null.</param>
     /// <returns>The Task object through which calculaion results will be accessible.</returns>
     public async Task<string> CalculateHashAsync(string hashType, 
         CancellationTokenSource externalCancellationSource = null)
@@ -507,7 +506,7 @@ public partial class MainViewModel :
     /// If null then this parameter si set to the currentn value of <see cref="VerifiedHashValue"/> property.</param>
     /// <param name="externalCancellationSource">The eventual external cancellation token source provided to the task
     /// by its caller, indicating that the current task is nested into (subordinate to) a broader task package.</param>
-    /// <param name="canceel soon as match is obtained. Default is false.</param>
+    /// <param name="canceelWhenMatchObtained">canceel soon as match is obtained. Default is false.</param>
     /// <returns>String identifying the type of the hash function that correspond to the verified hash value, or null
     /// when no corresponding hash type could be identified among the supported hash types (this can also happen when
     /// the operation was cancelled prematurely, or error occurred, or there is insufficient data for hash calculation).</returns>
@@ -869,6 +868,7 @@ public partial class MainViewModel :
         set {
             if (value != _isDebugInfoVisible)
             {
+                DebugMessage = null;
                 if (IsDebugMode)
                 {
                     _isDebugInfoVisible = value;
@@ -1030,6 +1030,19 @@ public partial class MainViewModel :
         }
     }
 
+
+    private string _debugMessage = "<< Debug message >>";
+
+    /// <summary>Intended just for debugging; operations can set this message such that it can be displayed 
+    /// in the debugging panel when it is visible.</summary>
+    public string DebugMessage { 
+        get { return _debugMessage; } 
+        set {
+            _debugMessage = value;
+            OnPropertyChanged(nameof(DebugMessage));
+        } 
+    }
+
     private bool _isSaveFileHashesToFile = false;
 
     public bool IsSaveFileHashesToFile
@@ -1139,10 +1152,8 @@ public partial class MainViewModel :
 
     // <param name="performAutomaticCalculations">If true then automatic calculation of missing hash values is performed.
 
-    /// <summary>Recalculates the <see cref="IsHashesOutdated"/> property, and performs any automatic 
-    /// tasks dependent on this property.</summary>
-    /// Default is true.</param>
-    public bool RefreshIsHashesOutdated(/* bool performAutomaticCalculations = true */)
+    /// <summary>Recalculates the <see cref="IsHashesOutdated"/> property.</summary>
+    public bool RefreshIsHashesOutdated()
     {
         bool isOutdated = GetHashesOutdated();  // this will also call OnPropertyChanged(nameof(IsHashesOutdated));
         return isOutdated;
@@ -1233,14 +1244,6 @@ public partial class MainViewModel :
         {
             if (value != _isCalculating)
             {
-                //if (value == true && !IsHashesOutdated)
-                //{
-                //    // ToDo:
-                //    // Move this check to locations where the NumCalculationTasks counter is increased!
-
-                //    // Hashes are not outdated, no need to do calculation!
-                //    return;
-                //}
                 _isCalculating = value;
             }
             OnPropertyChanged(nameof(IsCalculating));

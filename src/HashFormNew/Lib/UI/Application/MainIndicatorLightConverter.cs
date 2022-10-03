@@ -58,21 +58,24 @@ namespace IG.UI
             {
                 try
                 {
-                    isSufficientData = (bool)values[0];
+                    if (values[0] != null)
+                        isSufficientData = (bool)values[0];
                 }
                 catch { }
                 if (values.Length > 1)
                 {
                     try
                     {
-                        isCalculating = (bool)values[1];
+                        if (values[1] != null)
+                            isCalculating = (bool)values[1];
                     }
                     catch { }
                     if (values.Length > 2)
                     {
                         try
                         {
-                            isCalculated = (bool)values[2];
+                            if (values[2] != null)
+                                isCalculated = (bool)values[2];
                         }
                         catch { }
                     }

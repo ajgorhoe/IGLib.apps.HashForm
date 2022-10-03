@@ -69,10 +69,10 @@
 
                                 <HorizontalStackLayout HorizontalOptions="End" Spacing="4"  >
                                     <Label x:Name="DebugSwitchLabel"
-                                        Text="Debug Info:"
+                                        Text="Debug Info"
                                         IsVisible="{Binding IsDebugMode}"
-                                        HorizontalOptions="End" VerticalOptions="Center" />
-                                                <CheckBox x:Name="DebugCheckBox" IsChecked="{Binding IsDebugInfoVisible}"  
+                                        HorizontalOptions="End" VerticalOptions="Center"  />
+                                    <CheckBox x:Name="DebugCheckBox" IsChecked="{Binding IsDebugInfoVisible}"  
                                         BackgroundColor="Black" Color="Blue"
                                         IsVisible="{Binding IsDebugMode}"    HorizontalOptions="End" 
                                         Margin="4, 0, 8, 0" />
@@ -105,12 +105,13 @@
                                         DragOver="OnDragOverFileEntry"
                                         DragLeave="OnDragLeaveFileEntry"
                                         Drop="OnDropFileEntry"
+                                        AllowDrop="False"
                                         />
-
                                         <!--
-                                        DragOver="OnDragOverFileEntry"
-                                        DragLeave="OnDragLeaveFileEntry"
-                                        Drop="OnDropFileEntry"
+                                        WARNING: The drop gesture from above causes application crash due to bug in MAUI.
+                                        This bug manifests itself when something (like text) is dropped to a control from another application.
+                                        To avoid crashing the application, you can disable drops by setting
+                                        AllowDrop="False"
                                         -->
 
                                     </Entry.GestureRecognizers>
@@ -271,12 +272,17 @@
                                 >
 
                                 <VerticalStackLayout 
-                    x:Name="DebugInfoContainer"
-                    HorizontalOptions="Fill">
-                                    <Label Text="Debug info: " HorizontalOptions="Start" TextDecorations="Underline" />
+                                    x:Name="DebugInfoContainer"
+                                    HorizontalOptions="Fill">
                                     <HorizontalStackLayout 
-                            x:Name="HashValuesInfoContainer"
-                            Spacing="4" HorizontalOptions="Fill" >
+                                        x:Name="HashValuesTitleAndMessageContainer"
+                                        Spacing="4" HorizontalOptions="Fill" >
+                                        <Label Text="Debug info: " HorizontalOptions="Start" TextDecorations="Underline" />
+                                        <Label Text="{Binding DebugMessage, StringFormat='    {0}'}" TextColor="Blue" />
+                                    </HorizontalStackLayout>
+                                    <HorizontalStackLayout 
+                                        x:Name="HashValuesInfoContainer"
+                                        Spacing="4" HorizontalOptions="Fill" >
                                         <Label Text="NumCalculaions: " HorizontalOptions="Start" VerticalOptions="Center"></Label>
                                         <Label Text="{Binding NumActiveCalculationTasks}" HorizontalOptions="Start" VerticalOptions="Center"></Label>
                                         
@@ -334,16 +340,26 @@
                             </Border>
 
                             <Grid 
-                                x:Name="HashValuesGrid"
+                                x:Name="HashValuesContainer"
                                 HorizontalOptions="Fill" 
                                 RowDefinitions="1*, 1*, 1*, 1*" 
                                 ColumnDefinitions="Auto, Auto, *, Auto"
                                 RowSpacing="4" ColumnSpacing="4"
                                 >
 
+
+                                <!--
+                                <HorizontalStackLayout>
+                                </HorizontalStackLayout>
+                                -->
+
                                 <Label  x:Name="Md5Label" Grid.Row="0" Grid.Column="0" 
                                     Text="MD5:" 
-                                    HorizontalOptions="Start" VerticalOptions="Center" />
+                                    HorizontalOptions="Start" VerticalOptions="Center" >
+                                    <Label.GestureRecognizers>
+                                        <DragGestureRecognizer DragStarting="DragStarting_GetText" CanDrag="True"  />
+                                    </Label.GestureRecognizers>
+                                </Label>
                                 <CheckBox  x:Name="Md5Checkbox" Grid.Row="0" Grid.Column="1" 
                                     IsChecked="{Binding CalculateMD5}" 
                                     HorizontalOptions="Start" VerticalOptions="End" />
@@ -352,7 +368,7 @@
                                     Style="{StaticResource ControlBorderStyle}"
                                     >
                                     <Entry 
-                                        x:Name="Md5ValueControl" Text="{Binding HashValueMD5}" IsReadOnly="True" 
+                                        x:Name="Md5ValueControl" Text="{Binding HashValueMD5}" IsReadOnly="True"
                                         HorizontalOptions="Fill" VerticalOptions="Center"
                                         Style="{StaticResource EntryResultStyle}" />
                                 </Border>
@@ -363,7 +379,11 @@
 
                                 <Label 
                                     x:Name="Sha1Label" Grid.Row="1" Grid.Column="0" Text="SHA-1: " 
-                                    HorizontalOptions="Start" VerticalOptions="Center" />
+                                    HorizontalOptions="Start" VerticalOptions="Center" >
+                                    <Label.GestureRecognizers>
+                                        <DragGestureRecognizer DragStarting="DragStarting_GetText" CanDrag="True"  />
+                                    </Label.GestureRecognizers>
+                                </Label>
                                 <CheckBox 
                                     x:Name="Sha1Checkbox" Grid.Row="1" Grid.Column="1" 
                                     IsChecked="{Binding CalculateSHA1}" HorizontalOptions="Start" VerticalOptions="End" />
@@ -380,9 +400,14 @@
                                     x:Name="Sha1CopyButton" Command="{Binding CopyHashToClipboardCommand}" CommandParameter="{Binding HashTypeSHA1}"
                                     Grid.Row="1" Grid.Column="3" Text="Copy SHA-1" HorizontalOptions="Fill" VerticalOptions="Fill" Padding="10, 0, 0, 0" 
                                     />
+                                
                                 <Label 
                                     x:Name="Sha256Label" Grid.Row="2" Grid.Column="0" Text="SHA-256: " 
-                                    HorizontalOptions="Start" VerticalOptions="Center" />
+                                    HorizontalOptions="Start" VerticalOptions="Center" >
+                                    <Label.GestureRecognizers>
+                                        <DragGestureRecognizer DragStarting="DragStarting_GetText" CanDrag="True"  />
+                                    </Label.GestureRecognizers>
+                                </Label>
                                 <CheckBox 
                                     x:Name="Sha256Checkbox" Grid.Row="2" Grid.Column="1" IsChecked="{Binding CalculateSHA256}" 
                                     HorizontalOptions="Start" VerticalOptions="End" />
@@ -398,9 +423,14 @@
                                     x:Name="Sha256CopyButton"  Command="{Binding CopyHashToClipboardCommand}" CommandParameter="{Binding HashTypeSHA256}"
                                     Grid.Row="2" Grid.Column="3" Text="Copy SHA-256" 
                                     HorizontalOptions="Fill" VerticalOptions="Fill" Padding="10, 0, 0, 0" />
+                                
                                 <Label 
                                     x:Name="Sha512Label" Grid.Row="3" Grid.Column="0" Text="SHA-512: " 
-                                    HorizontalOptions="Start" VerticalOptions="Center" />
+                                    HorizontalOptions="Start" VerticalOptions="Center" >
+                                    <Label.GestureRecognizers>
+                                        <DragGestureRecognizer DragStarting="DragStarting_GetText" CanDrag="True"  />
+                                    </Label.GestureRecognizers>
+                                </Label>
                                 <CheckBox 
                                     x:Name="Sha512Checkbox" Grid.Row="3" Grid.Column="1" IsChecked="{Binding CalculateSHA512}" 
                                     HorizontalOptions="Start" VerticalOptions="End" />
@@ -420,7 +450,6 @@
                             </Grid>
 
 
-
                             <Grid ColumnDefinitions="2*, 1*"
                                 x:Name="VerifyHashCommandContainer"
                                 HorizontalOptions="Fill" 
@@ -429,8 +458,7 @@
                                 <Label Grid.Row="0" Grid.Column="0"
                                     x:Name="VerifyHashLabel" Text="Verify Specific Hash Value (any Supported Type): "
                                     HorizontalOptions="Start"
-                                    VerticalOptions="Center"
-                                    />
+                                    VerticalOptions="Center" />
                                 <Button Grid.Row="0" Grid.Column="1"
                                     x:Name="VerifyHashButton" Text="Verify Hash"
                                     Command="{Binding VerifyHashCommand}"
@@ -444,32 +472,60 @@
                                 ColumnSpacing="4"
                                 HorizontalOptions="Fill"
                                 >
+                                <Grid.GestureRecognizers>
+                                    <DragGestureRecognizer DragStarting="DragStarting_GetText" CanDrag="True"  />
+                                    <DropGestureRecognizer
+                                        DragOver="OnDragOverVerifiedHashValueEntry"
+                                        DragLeave="OnDragLeaveVerifiedHashValueEntry"
+                                        Drop="OnDropVerifiedHashValueEntry"
+                                        AllowDrop="True"
+                                        />
+                                    <!--
+                                    WARNING: The drop gesture from above causes application crash due to bug in MAUI.
+                                    This bug manifests itself when something (like text) is dropped to a control from another application.
+                                    To avoid crashing the application, you can disable drops by setting
+                                    AllowDrop="False"
+                                    -->
+
+                                </Grid.GestureRecognizers>
+                                
                                 <Label Grid.Row="0" Grid.Column="0"
                                     x:Name="VerifiedHashValueLabel" Text="Hash value:"
                                     HorizontalOptions="Start"
                                     VerticalOptions="Center"
-                                    />
+                                    >
+                                    <Label.GestureRecognizers>
+                                        <DragGestureRecognizer DragStarting="DragStarting_GetText" CanDrag="True"  />
+                                    </Label.GestureRecognizers>
+                                </Label>
 
                                 <Entry Grid.Row="0" Grid.Column="1"
                                     x:Name="VerifiedHashValueEnty" Text="{Binding VerifiedHashValue}"
                                     Placeholder="Hash value to be verified"
                                     HorizontalOptions="Fill"
                                     VerticalOptions="Center"
-                                    />
+                                    >
+                                    <Entry.GestureRecognizers>
+                                        <DragGestureRecognizer DragStarting="DragStarting_GetText" CanDrag="True" />
+                                    </Entry.GestureRecognizers>
+                                </Entry>
 
                                 <Button Grid.Row="0" Grid.Column="2"
                                     x:Name="VerifiedHashValueCopyButton" Text="Paste" 
                                     Command="{Binding PasteVerifiedHashFromClipboardCommand}"
                                     HorizontalOptions="End"
                                     VerticalOptions="Center"
-                                    />
+                                    >
+                                    <Button.GestureRecognizers>
+                                        <DragGestureRecognizer DragStarting="DragStarting_GetText" CanDrag="True" />
+                                    </Button.GestureRecognizers>
+                                </Button>
 
                             </Grid>
 
 
 
                         </VerticalStackLayout>
-
 
 
                     </Frame>
@@ -482,27 +538,6 @@
                         TextColor="Blue" Padding="0" />
 
 
-                    <!--
-
-
-                    <Frame Grid.Row="2" Grid.Column="0"
-                        HorizontalOptions="Fill"
-                        VerticalOptions="Fill"
-                        >
-
-                    <ScrollView  Grid.Row="2" Grid.Column="0"
-                        BackgroundColor="Green"  Padding="20"
-                        HorizontalOptions="Fill"
-                        VerticalOptions="Fill"
-                        >
-
-                    </ScrollView>
-                    </Frame>
-                    -->
-                    
-
-                    
-                    
                     <Editor Grid.Row="2" Grid.Column="0"
                             x:Name="HashedTextViewOrEntry" Text="{Binding TextToHash}"
                             IsReadOnly="{Binding IsFileHashing}"
@@ -511,7 +546,24 @@
                             VerticalOptions="Fill" 
                             MinimumHeightRequest="100"
                             Style="{StaticResource EditorResultStyle}"
-                            />
+                            >
+                        <Editor.GestureRecognizers>
+                            <DragGestureRecognizer >
+                            </DragGestureRecognizer>
+                            <DropGestureRecognizer 
+                                AllowDrop="False" >
+                            </DropGestureRecognizer>
+                            <!-- Commented - causing crashes! Drop works only when dragging someething from 
+                            the same application, if dragging e.g text from some text editor and dropping it
+                            in control, the application will crash.
+                            This is a MAUI / WinUI bug. See also:
+                            https://github.com/dotnet/maui/issues/6080
+                            https://github.com/dotnet/maui/issues/6684
+                            You can avoid application crashes by disabling drops, e.g. by setting 
+                            AllowDrop="False"
+                            -->
+                        </Editor.GestureRecognizers>
+                    </Editor>
 
 
                     <Border  
@@ -525,26 +577,6 @@
                         StrokeShape="RoundRectangle 0, 0, 5, 5"
                         Padding="10"   >
                     </Border>
-
-                            
-                                
-                        <!--
-                        
-                        <StackLayout 
-                            Grid.Row="4" Grid.Column="0"
-                            Orientation="Vertical"
-                            VerticalOptions="Start"
-                            BackgroundColor="Orange" 
-                            >
-                        
-                        </StackLayout>
-                    
-                        Grid.Row="0" Grid.Column="0"
-                        Grid.Row="1" Grid.Column="0"
-                        Grid.Row="2" Grid.Column="0"
-                        
-                        -->
-
 
                 </Grid>
 

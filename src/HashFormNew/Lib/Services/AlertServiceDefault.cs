@@ -37,7 +37,7 @@ namespace IG.App
             );
         }
 
-        /// <summary>Initial value for <see cref="DefaultTimeoutMs"/></summary>
+        /// <summary>Initial value for <see cref="DefaultTimoutMs"/></summary>
         public const int InitialDefaultTimeoutMs = 2500;
 
         private static int _defaultTimoutMs = InitialDefaultTimeoutMs;

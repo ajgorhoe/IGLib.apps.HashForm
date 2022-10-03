@@ -2,7 +2,7 @@
 using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
-using Windows.Services.Maps;
+//using Windows.Services.Maps;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.Maui.Devices.Sensors;

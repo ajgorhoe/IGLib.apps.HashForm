@@ -2,7 +2,7 @@
 using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
-using Windows.Services.Maps;
+//using Windows.Services.Maps;
 
 namespace IG.App
 {
@@ -23,7 +23,7 @@ namespace IG.App
         /// <summary>Gets the text from clipboard.
         /// <para>WARNING:</para>
         /// <para>Must be called on window's Dispatcher thread (Main thread), otherwise exception is thrown.
-        /// From any thread, you should call <see cref="GetText(Action{string}))"/> instead.</para></summary>
+        /// From any thread, you should call <see cref="GetText(Action{string})"/> instead.</para></summary>
         Task<string> GetTextAsync();
 
         /// <summary>Sets text on the clipboard. Can be called from any thread.</summary>
