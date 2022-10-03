@@ -340,6 +340,11 @@
                             </Border>
 
 
+                            <!--
+                            Experimenting with FlexLayout:
+                            -->
+
+                                <!--
 
                             <FlexLayout BackgroundColor="Orange" 
                                 VerticalOptions="Start"
@@ -350,8 +355,6 @@
                                 AlignContent="Stretch"
                                 >
 
-
-                                <!--
 
                                 <Label  x:Name="Md5Label1" Grid.Row="0" Grid.Column="0" 
                                     Text="MD5:" 
@@ -390,8 +393,8 @@
                                 <Label BackgroundColor="HotPink" FlexLayout.Grow="1" FlexLayout.Basis="20%">Flex 7</Label>
                                 <Label BackgroundColor="Ivory" FlexLayout.Grow="1" FlexLayout.Basis="20%">Flex 8</Label>
                                 <Label BackgroundColor="Khaki" FlexLayout.Grow="1" FlexLayout.Basis="20%">Flex 9</Label>
-                                -->
                             </FlexLayout>
+                                -->
 
 
                             <Grid 
